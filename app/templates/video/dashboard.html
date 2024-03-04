@@ -1,0 +1,35 @@
+<!-- templates/video/dashboard.html -->
+{% extends 'layout.html' %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+    <h2>Welcome, {{ current_user.username }}!</h2>
+
+    <h3>Your Videos</h3>
+    <ul class="list-group">
+        {% for video in videos %}
+            <li class="list-group-item">
+                <a href="{{ url_for('video.view', video_id=video.id) }}">{{ video.title }}</a>
+                {% if video.transcription %}
+                    <span class="badge badge-info ml-2">Transcribed</span>
+                {% else %}
+                    <a class="btn btn-outline-primary btn-sm ml-2" href="{{ url_for('video.transcribe', video_id=video.id) }}">Transcribe</a>
+                {% endif %}
+            </li>
+        {% endfor %}
+    </ul>
+
+    <h3>Upload a New Video</h3>
+    <form method="post" action="{{ url_for('video.upload') }}" enctype="multipart/form-data">
+        <div class="form-group">
+            <label for="title">Title:</label>
+            <input type="text" class="form-control" id="title" name="title" required>
+        </div>
+        <div class="form-group">
+            <label for="file">Choose a Video File:</label>
+            <input type="file" class="form-control-file" id="file" name="file" accept=".mp4, .avi, .mkv, .mov" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Upload</button>
+    </form>
+{% endblock %}
