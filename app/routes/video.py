@@ -90,14 +90,14 @@ def transcribe(video_id):
         return redirect(url_for('video.dashboard'))
 
     # Extrai e transcreve o áudio do vídeo
-    transcription = transcribe_video_audio(video.id)
+    transcription = transcribe_video_audio(video.video_path)
 
     # Atualiza o modelo de vídeo com a transcrição
     video.transcription = transcription
     db.session.commit()
 
     flash('Transcription completed successfully', 'success')
-    return redirect(url_for('video.dashboard'))
+    return redirect(url_for('video.summarize', video_id=video.id, library_id=2))
 
 
 @video_bp.route('/summarize/<int:video_id>/<int:library_id>')
