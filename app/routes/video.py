@@ -2,6 +2,8 @@
 import os
 from uuid import uuid1
 
+import imageio
+import moviepy.editor as mp
 from flask import Blueprint, render_template, redirect, url_for, flash, request
 from flask_login import login_required, current_user
 from app import db
@@ -29,6 +31,7 @@ def dashboard():
     return render_template('video/dashboard.html', videos=videos)
 
 
+
 @video_bp.route('/upload', methods=['GET', 'POST'])
 @login_required
 def upload():
@@ -44,13 +47,28 @@ def upload():
             return redirect(request.url)
 
         if file and allowed_file(file.filename):
-            # filename = secure_filename(file.filename)
-            # filename = file.filename
             filename = str(uuid1())+'.mp4'
             file_path = os.path.join(UPLOAD_FOLDER, filename)
             file.save(file_path)
 
-            new_video = Video(title=request.form['title'], video_path=file_path, user_id=current_user.id)
+            video_info = imageio.get_reader(file_path).get_meta_data()
+
+            # Obtenha o tamanho do arquivo
+            file_size = os.path.getsize(file_path)
+
+            # Obtenha a duração do vídeo
+            video = mp.VideoFileClip(file_path)
+            duration = video.duration
+
+            # Obtenha as informações do codec
+            codec_info = video.codec_info
+            # Crie uma miniatura do vídeo
+            thumbnail_filename = f'{filename}_thumbnail.jpg'
+            thumbnail_path = os.path.join(UPLOAD_FOLDER, thumbnail_filename)
+            video.save_frame(thumbnail_path, t=(duration / 2))  # Salva o quadro no meio do vídeo como miniatura
+
+            new_video = Video(title=request.form['title'], video_path=file_path, file_size=file_size, duration=duration,
+                              codec_info=codec_info, thumbnail_path=thumbnail_path, user_id=current_user.id)
             db.session.add(new_video)
             db.session.commit()
 
@@ -61,7 +79,6 @@ def upload():
             return redirect(request.url)
 
     return render_template('video/upload.html')
-
 
 @video_bp.route('/view/<int:video_id>')
 @login_required
