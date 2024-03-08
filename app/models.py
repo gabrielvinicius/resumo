@@ -29,13 +29,10 @@ class Video(db.Model):
     file_size = db.Column(db.Integer, nullable=True)  # Tamanho do arquivo em bytes
     # duration = db.Column(db.Integer, nullable=True)  # Duração do vídeo em segundos
     fps = db.Column(db.Float, nullable=True)
-    size = db.Column(db.String(20), nullable=True)
+    # size = db.Column(db.String(20), nullable=True)
     duration = db.Column(db.Float, nullable=True)
-    nframes = db.Column(db.Integer, nullable=True)
     codec = db.Column(db.String(20), nullable=True)
-    bitrate = db.Column(db.Integer, nullable=True)
     date_added = db.Column(db.DateTime, default=datetime.utcnow)  # Data em que o vídeo foi adicionado
-    codec_info = db.Column(db.String(100), nullable=True)  # Informações do codec do vídeo
     thumbnail_path = db.Column(db.String(255), nullable=True)  # Caminho para a miniatura do vídeo
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     summaries = db.relationship('Summary', backref='video', lazy=True)

@@ -1,16 +1,16 @@
 # app/routes/video.py
 import os
 from uuid import uuid1
-
 import imageio
 import moviepy.editor as mp
 from flask import Blueprint, render_template, redirect, url_for, flash, request
 from flask_login import login_required, current_user
 from app import db
 from app.models import Video, Summary
+from app.summarization import BartTextSummarizer,T5TextSummarizer,GPT2TextSummarizer,XLNetTextSummarizer
 from app.transcription import transcribe_video_audio
 from app.summarization.nltk import summarize_nltk
-from app.summarization.bert import summarize_bert
+from app.summarization.bert import TextSummarizer
 from app.summarization.spacy import summarize_spacy
 from app.summarization.tfidf import summarize_tfidf
 
@@ -31,7 +31,6 @@ def dashboard():
     return render_template('video/dashboard.html', videos=videos)
 
 
-
 @video_bp.route('/upload', methods=['GET', 'POST'])
 @login_required
 def upload():
@@ -47,7 +46,7 @@ def upload():
             return redirect(request.url)
 
         if file and allowed_file(file.filename):
-            filename = str(uuid1())+'.mp4'
+            filename = str(uuid1()) + '.mp4'
             file_path = os.path.join(UPLOAD_FOLDER, filename)
             file.save(file_path)
 
@@ -60,15 +59,20 @@ def upload():
             video = mp.VideoFileClip(file_path)
             duration = video.duration
 
-            # Obtenha as informações do codec
-            codec_info = video.codec_info
             # Crie uma miniatura do vídeo
             thumbnail_filename = f'{filename}_thumbnail.jpg'
             thumbnail_path = os.path.join(UPLOAD_FOLDER, thumbnail_filename)
             video.save_frame(thumbnail_path, t=(duration / 2))  # Salva o quadro no meio do vídeo como miniatura
 
+            # Obtenha o fps, size, nframes, codec e bitrate do vídeo
+            fps = video_info.get('fps')
+            # size = video_info['source_size']
+
+            codec = video_info['codec']
+
             new_video = Video(title=request.form['title'], video_path=file_path, file_size=file_size, duration=duration,
-                              codec_info=codec_info, thumbnail_path=thumbnail_path, user_id=current_user.id)
+                              thumbnail_path=thumbnail_path, user_id=current_user.id,
+                              fps=fps, codec=codec)
             db.session.add(new_video)
             db.session.commit()
 
@@ -79,6 +83,7 @@ def upload():
             return redirect(request.url)
 
     return render_template('video/upload.html')
+
 
 @video_bp.route('/view/<int:video_id>')
 @login_required
@@ -129,7 +134,15 @@ def summarize(video_id, library_id):
     if library_id == 1:
         summary_content = summarize_nltk(video.transcription)
     elif library_id == 2:
-        summary_content = summarize_bert(video.transcription)
+       # summarizer = TextSummarizer('facebook/bart-large-cnn')
+       # summary_content = summarizer.summarize(video.transcription)
+        #summarizer = GPT2TextSummarizer()
+        # summarizer =  BartTextSummarizer()
+        summarizer = T5TextSummarizer()
+        #summarizer = XLNetTextSummarizer()
+        summary_content = summarizer.summarize(video.transcription)
+
+        # summary_content = summarize_bert(video.transcription)
     elif library_id == 3:
         summary_content = summarize_spacy(video.transcription)
     elif library_id == 4:
