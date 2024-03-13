@@ -7,12 +7,14 @@ from flask import Blueprint, render_template, redirect, url_for, flash, request
 from flask_login import login_required, current_user
 from app import db
 from app.models import Video, Summary
-from app.summarization import BartTextSummarizer,T5TextSummarizer,GPT2TextSummarizer,XLNetTextSummarizer
+from app.summarization import BartTextSummarizer, T5TextSummarizer, GPT2TextSummarizer, XLNetTextSummarizer
 from app.transcription import transcribe_video_audio
 from app.summarization.nltk import summarize_nltk
 from app.summarization.bert import TextSummarizer
 from app.summarization.spacy import summarize_spacy
 from app.summarization.tfidf import summarize_tfidf
+from app.audio_transcriber_summarizer import SpeechTranscriberWithSummarization
+from app.speech_to_text import SpeechTranscriber
 
 video_bp = Blueprint('video', __name__)
 
@@ -107,13 +109,15 @@ def transcribe(video_id):
         return redirect(url_for('video.dashboard'))
 
     # Verifica se o arquivo de áudio já foi transcribido
-    if video.transcription:
-        flash('Audio already transcribed', 'info')
-        return redirect(url_for('video.dashboard'))
+    # if video.transcription:
+    # flash('Audio already transcribed', 'info')
+    # return redirect(url_for('video.dashboard'))
 
     # Extrai e transcreve o áudio do vídeo
-    transcription = transcribe_video_audio(video.video_path)
-
+    # transcription = transcribe_video_audio(video.video_path)
+    transcriber = SpeechTranscriberWithSummarization()
+    # transcriber = SpeechTranscriber()
+    transcription = transcriber.transcribe(video.video_path)
     # Atualiza o modelo de vídeo com a transcrição
     video.transcription = transcription
     db.session.commit()
@@ -131,25 +135,8 @@ def summarize(video_id, library_id):
         flash('Video not found or you do not have permission to summarize it', 'danger')
         return redirect(url_for('video.dashboard'))
 
-    if library_id == 1:
-        summary_content = summarize_nltk(video.transcription)
-    elif library_id == 2:
-       # summarizer = TextSummarizer('facebook/bart-large-cnn')
-       # summary_content = summarizer.summarize(video.transcription)
-        #summarizer = GPT2TextSummarizer()
-        # summarizer =  BartTextSummarizer()
-        summarizer = T5TextSummarizer()
-        #summarizer = XLNetTextSummarizer()
-        summary_content = summarizer.summarize(video.transcription)
-
-        # summary_content = summarize_bert(video.transcription)
-    elif library_id == 3:
-        summary_content = summarize_spacy(video.transcription)
-    elif library_id == 4:
-        summary_content = summarize_tfidf(video.transcription)
-    else:
-        flash('Invalid library ID for summarization', 'danger')
-        return redirect(url_for('video.dashboard'))
+    summarizer = T5TextSummarizer()
+    summary_content = summarizer.summarize(video.transcription)
 
     new_summary = Summary(content=summary_content, library_id=library_id, video_id=video.id)
     db.session.add(new_summary)

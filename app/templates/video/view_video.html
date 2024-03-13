@@ -20,7 +20,7 @@
     <h3>Summaries</h3>
     <ul class="list-group">
         {% for summary in video.summaries %}
-            <li class="list-group-item">{{ summary.content }} ({{ summary.library_id }})</li>
+            <li class="list-group-item">{{ summary.content }}</li>
         {% endfor %}
     </ul>
 {% endblock %}
