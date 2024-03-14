@@ -25,14 +25,13 @@ class SpeechTranscriberWithSummarization:
     def transcribe(self, video_path):
         # Código para transcrição... (mantido igual ao exemplo anterior)
         result = self.pipe(video_path)
-        transcribed_text = result["text"]
         # transcribed_text = "Texto de exemplo transcrito."
 
-        return transcribed_text
+        return result["text"]
 
-    def summarize(self, transcribed_text):
+    def summarize(self, text):
         # Obtém os tokens da transcrição
-        transcription_tokens = self.transcription_tokenizer(transcribed_text, return_tensors="pt", padding=True)
+        transcription_tokens = self.transcription_tokenizer(text, return_tensors="pt", padding=True)
 
         # Gera a representação oculta usando o modelo de transcrição
         with torch.no_grad():
