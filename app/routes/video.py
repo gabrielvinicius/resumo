@@ -7,6 +7,9 @@ from flask import Blueprint, render_template, redirect, url_for, flash, request
 from flask_login import login_required, current_user
 from app import db
 from app.models import Video, Summary
+from transformers import pipeline
+from app.automatic_speech_recognition import SpeechTranscriber
+from app.audio_transcriber_summarizer import SpeechTranscriberWithSummarization
 from app.summarization import BartTextSummarizer, T5TextSummarizer, GPT2TextSummarizer, XLNetTextSummarizer
 from app.transcription import transcribe_video_audio
 from app.summarization.nltk import summarize_nltk
@@ -115,11 +118,14 @@ def transcribe(video_id):
 
     # Extrai e transcreve o áudio do vídeo
     # transcription = transcribe_video_audio(video.video_path)
-    transcriber = SpeechTranscriberWithSummarization()
-    # transcriber = SpeechTranscriber()
-    transcription = transcriber.transcribe(video.video_path)
+    # transcriber = SpeechTranscriberWithSummarization()
+    transcriber = SpeechTranscriber()
+    # pipe = pipeline("automatic-speech-recognition", "openai/whisper-large-v2")
+    # result = pipe(video.video_path)
+    # transcription = result['text']
+    # transcription = transcriber.transcribe(video.video_path)
     # Atualiza o modelo de vídeo com a transcrição
-    video.transcription = transcription
+    video.transcription = transcriber.transcribe(video.video_path)
     db.session.commit()
 
     flash('Transcription completed successfully', 'success')
@@ -135,10 +141,12 @@ def summarize(video_id, library_id):
         flash('Video not found or you do not have permission to summarize it', 'danger')
         return redirect(url_for('video.dashboard'))
 
-    summarizer = T5TextSummarizer()
-    summary_content = summarizer.summarize(video.transcription)
-
-    new_summary = Summary(content=summary_content, library_id=library_id, video_id=video.id)
+    # summarizer = T5TextSummarizer()
+    # summary_content = summarizer.summarize(video.transcription)
+    classifier = pipeline(task="summarization")
+    summary_content = classifier(video.transcription)
+    result = summary_content[0]["summary_text"]
+    new_summary = Summary(content=result, library_id=library_id, video_id=video.id)
     db.session.add(new_summary)
     db.session.commit()
 

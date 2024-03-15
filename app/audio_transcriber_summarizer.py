@@ -11,7 +11,7 @@ class SpeechTranscriberWithSummarization:
             "automatic-speech-recognition",
             model=self.transcription_model,
             tokenizer=self.transcription_tokenizer,
-            feature_extractor=self.transcription_tokenizer.feature_extractor,
+            # feature_extractor=self.transcription_tokenizer.feature_extractor,
             max_new_tokens=128,
             chunk_length_s=30,
             batch_size=16,
@@ -24,7 +24,8 @@ class SpeechTranscriberWithSummarization:
 
     def transcribe(self, video_path):
         # Código para transcrição... (mantido igual ao exemplo anterior)
-        result = self.pipe(video_path)
+        transcriber = pipeline("automatic-speech-recognition", model="openai/whisper-large-v3")
+        result = transcriber(video_path)
         # transcribed_text = "Texto de exemplo transcrito."
 
         return result["text"]
