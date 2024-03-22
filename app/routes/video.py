@@ -58,6 +58,9 @@ def upload():
             flash('No selected file', 'danger')
             return redirect(request.url)
 
+        if not os.path.exists(UPLOAD_FOLDER):
+            os.makedirs(UPLOAD_FOLDER)
+
         if file and allowed_file(file.filename):
             filename = str(uuid1()) + '.mp4'
             file_path = os.path.join(UPLOAD_FOLDER, filename)
