@@ -1,5 +1,6 @@
 # app/summarizer.py
 import time
+import nltk
 from nltk.corpus import stopwords
 from nltk.tokenize import sent_tokenize, word_tokenize
 from nltk.probability import FreqDist
@@ -8,6 +9,7 @@ from heapq import nlargest
 
 class TextSummarizer:
     def __init__(self, language='english'):
+        nltk.download()
         self.stopwords = set(stopwords.words(language))
 
     def summarize(self, text, ratio=0.3):
