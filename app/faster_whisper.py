@@ -28,9 +28,10 @@ class SpeechTranscriber:
         segments, info = self.model.transcribe(audio=audio_path, beam_size=5, vad_filter=True)
         # segments, info = self.model.transcribe(audio=video_path, beam_size=5, vad_filter=True)
         segments = list(segments)
-        text = "".join(segments)
-        # for segment in segments:
-          # text += segment.text
+        # text = "".join(segments)
+        text = ""
+        for segment in segments:
+          text += segment.text
 
         # Remover o arquivo de áudio temporário após a transcrição
         # os.remove(audio_path)
