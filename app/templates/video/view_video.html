@@ -6,7 +6,7 @@
 {% block content %}
     <h2>{{ video.title }}</h2>
     <video width="640" height="360" controls>
-        <source src="{{ url_for('static', filename='videos/' + video.video_path) }}" type="video/mp4">
+        <source src="{{ url_for('video.download', video_id=video.id) }}" type="video/mp4">
         Your browser does not support the video tag.
     </video>
 

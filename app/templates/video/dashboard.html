@@ -5,31 +5,41 @@
 
 {% block content %}
     <h2>Welcome, {{ current_user.username }}!</h2>
+        <div class="card mt-4">
+        <div class="card-header">
+            <h3 class="card-title">Upload a New Video</h3>
+        </div>
+        <div class="card-body">
+            <form method="post" action="{{ url_for('video.upload') }}" enctype="multipart/form-data">
+                <div class="form-group">
+                    <label for="title">Title:</label>
+                    <input type="text" class="form-control" id="title" name="title" required>
+                </div>
+                <div class="form-group">
+                    <label for="file">Choose a Video File:</label>
+                    <input type="file" class="form-control-file" id="file" name="file" accept=".mp4, .avi, .mkv, .mov" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Upload</button>
+            </form>
+        </div>
+    </div>
 
-    <h3>Your Videos</h3>
-    <ul class="list-group">
+    <div class="row mt-4">
         {% for video in videos %}
-            <li class="list-group-item">
-                <a href="{{ url_for('video.view', video_id=video.id) }}">{{ video.title }}</a>
-                {% if video.transcription %}
-                    <span class="badge badge-info ml-2">Transcribed</span>
-                {% else %}
-                    <a class="btn btn-outline-primary btn-sm ml-2" href="{{ url_for('video.transcribe', video_id=video.id) }}">Transcribe</a>
-                {% endif %}
-            </li>
+            <div class="col-md-4 mb-4">
+                <div class="card">
+                    <img src="{{ url_for('video.thumbnail', video_id=video.id) }}" class="card-img-top" alt="Thumbnail">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ video.title }}</h5>
+                        <p class="card-text">File Size: {{ video.file_size }} bytes</p>
+                        <p class="card-text">FPS: {{ video.fps }}</p>
+                        <p class="card-text">Codec: {{ video.codec }}</p>
+                        <p class="card-text">Duration: {{ video.duration }} sec</p>
+                        <p class="card-text">Date Added: {{ video.date_added.strftime('%Y-%m-%d %H:%M:%S') }}</p>
+                        <a href="{{ url_for('video.view', video_id=video.id) }}" class="btn btn-primary">View Video</a>
+                    </div>
+                </div>
+            </div>
         {% endfor %}
-    </ul>
-
-    <h3>Upload a New Video</h3>
-    <form method="post" action="{{ url_for('video.upload') }}" enctype="multipart/form-data">
-        <div class="form-group">
-            <label for="title">Title:</label>
-            <input type="text" class="form-control" id="title" name="title" required>
-        </div>
-        <div class="form-group">
-            <label for="file">Choose a Video File:</label>
-            <input type="file" class="form-control-file" id="file" name="file" accept=".mp4, .avi, .mkv, .mov" required>
-        </div>
-        <button type="submit" class="btn btn-primary">Upload</button>
-    </form>
+    </div>
 {% endblock %}

@@ -3,21 +3,24 @@ import os
 from uuid import uuid1
 import imageio
 import moviepy.editor as mp
-from flask import Blueprint, render_template, redirect, url_for, flash, request
+from flask import Blueprint, render_template, redirect, url_for, flash, request,send_file
 from flask_login import login_required, current_user
 from app import db
 from app.models import Video, Summary
 from transformers import pipeline
-from app.automatic_speech_recognition import SpeechTranscriber
-from app.audio_transcriber_summarizer import SpeechTranscriberWithSummarization
-from app.summarization import BartTextSummarizer, T5TextSummarizer, GPT2TextSummarizer, XLNetTextSummarizer
-from app.transcription import transcribe_video_audio
-from app.summarization.nltk import summarize_nltk
-from app.summarization.bert import TextSummarizer
-from app.summarization.spacy import summarize_spacy
-from app.summarization.tfidf import summarize_tfidf
-from app.audio_transcriber_summarizer import SpeechTranscriberWithSummarization
-from app.speech_to_text import SpeechTranscriber
+# from app.automatic_speech_recognition import SpeechTranscriber
+# from app.audio_transcriber_summarizer import SpeechTranscriberWithSummarization
+# from app.summarization import BartTextSummarizer, T5TextSummarizer, GPT2TextSummarizer, XLNetTextSummarizer
+from app.faster_whisper import SpeechTranscriber
+
+# from app.transcription import SpeechTranscriber
+# from app.transcription import WhisperModel
+# from app.summarization.nltk import summarize_nltk
+# from app.summarization.bert import TextSummarizer
+# from app.summarization.spacy import summarize_spacy
+# from app.summarization.tfidf import summarize_tfidf
+# from app.audio_transcriber_summarizer import SpeechTranscriberWithSummarization
+# from app.speech_to_text import SpeechTranscriber
 
 video_bp = Blueprint('video', __name__)
 
@@ -120,6 +123,7 @@ def transcribe(video_id):
     # transcription = transcribe_video_audio(video.video_path)
     # transcriber = SpeechTranscriberWithSummarization()
     transcriber = SpeechTranscriber()
+    # transcriber = WhisperModel()
     # pipe = pipeline("automatic-speech-recognition", "openai/whisper-large-v2")
     # result = pipe(video.video_path)
     # transcription = result['text']
@@ -152,3 +156,23 @@ def summarize(video_id, library_id):
 
     flash('Summarization completed successfully', 'success')
     return redirect(url_for('video.view', video_id=video.id))
+
+
+@video_bp.route('/download/<int:video_id>')
+@login_required
+def download(video_id):
+    video = Video.query.get(video_id)
+
+    if not video or video.user_id != current_user.id:
+        flash('Video not found or you do not have permission to download it', 'danger')
+        return redirect(url_for('video.dashboard'))
+
+    return send_file(path_or_file='../'+video.video_path, as_attachment=True)
+@video_bp.route('/thumbnail/<int:video_id>')
+@login_required
+def thumbnail(video_id):
+    video = Video.query.get(video_id)
+    if not video or video.user_id != current_user.id:
+        flash('Video not found or you do not have permission to download it', 'danger')
+        return redirect(url_for('video.dashboard'))
+    return send_file(path_or_file='../' + video.thumbnail_path, as_attachment=True)
