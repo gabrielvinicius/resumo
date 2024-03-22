@@ -1,5 +1,4 @@
 # config.py
-import os
 
 
 class Config:
@@ -7,7 +6,7 @@ class Config:
     SQLALCHEMY_DATABASE_URI = 'mysql://summary:summary@45.33.198.3/summarization'  # Use SQLite como banco de dados por padrão
     UPLOAD_FOLDER = 'uploads'  # Diretório para upload de vídeos
     ALLOWED_EXTENSIONS = {'mp4', 'avi', 'mkv', 'mov'}  # Extensões permitidas para upload de vídeos
-    MAX_CONTENT_LENGTH = 1024 * 1024 * 1024   # Limite de tamanho para upload de arquivos (1024MB)
+    MAX_CONTENT_LENGTH = 1024 * 1024 * 1024  # Limite de tamanho para upload de arquivos (1024MB)
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
 

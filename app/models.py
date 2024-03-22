@@ -1,7 +1,11 @@
-# models.py
-from flask_login import UserMixin
-from app import db
+# app/models.py
 from datetime import datetime
+
+from flask_login import UserMixin
+
+from app import db
+
+
 # from flask_security import UserMixin
 
 
@@ -14,33 +18,40 @@ class Library(db.Model):
 
 class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
-    # email = db.Column(db.String(255), unique=True, nullable=False)
     username = db.Column(db.String(50), unique=True, nullable=False)
     password = db.Column(db.String(250), nullable=False)
-    # active = db.Column(db.Boolean(), default=True)
     videos = db.relationship('Video', backref='user', lazy=True)
+
+
+class Transcription(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    text = db.Column(db.Text, nullable=False)
+    processing_time = db.Column(db.Float, nullable=False)
+    video_id = db.Column(db.Integer, db.ForeignKey('video.id'), nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    language = db.Column(db.String(50), nullable=True)
+    # Adiciona relação com Summary (um para muitos)
+    summaries = db.relationship('Summary', backref='transcription', lazy=True)
 
 
 class Video(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(100), nullable=False)
-    transcription = db.Column(db.Text, nullable=True)
     video_path = db.Column(db.String(255), nullable=True)
-    file_size = db.Column(db.Integer, nullable=True)  # Tamanho do arquivo em bytes
-    # duration = db.Column(db.Integer, nullable=True)  # Duração do vídeo em segundos
-    fps = db.Column(db.Float, nullable=True)
-    # size = db.Column(db.String(20), nullable=True)
+    file_size = db.Column(db.Integer, nullable=True)
     duration = db.Column(db.Float, nullable=True)
+    thumbnail_path = db.Column(db.String(255), nullable=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     codec = db.Column(db.String(20), nullable=True)
     date_added = db.Column(db.DateTime, default=datetime.utcnow)  # Data em que o vídeo foi adicionado
-    thumbnail_path = db.Column(db.String(255), nullable=True)  # Caminho para a miniatura do vídeo
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    summaries = db.relationship('Summary', backref='video', lazy=True)
+    fps = db.Column(db.Float, nullable=True)
+    transcription = db.relationship('Transcription', backref='video', uselist=False)
 
 
 class Summary(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    content = db.Column(db.Text, nullable=False)
-    video_id = db.Column(db.Integer, db.ForeignKey('video.id'), nullable=False)
-    library_id = db.Column(db.Integer, db.ForeignKey('library.id'), nullable=True)  # Relaciona a Summary com a Library
-    library = db.relationship('Library', backref='summaries', lazy=True)
+    text = db.Column(db.Text, nullable=False)
+    transcription_id = db.Column(db.Integer, db.ForeignKey('transcription.id'), nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    processing_time = db.Column(db.Float, nullable=False)
+    # Adicione outras colunas conforme necessário

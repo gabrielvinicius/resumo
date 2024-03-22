@@ -1,17 +1,22 @@
 # app/routes/video.py
 import os
 from uuid import uuid1
+
 import imageio
 import moviepy.editor as mp
-from flask import Blueprint, render_template, redirect, url_for, flash, request,send_file
+from flask import Blueprint, render_template, redirect, url_for, flash, request, send_file
 from flask_login import login_required, current_user
+
+
 from app import db
-from app.models import Video, Summary
-from transformers import pipeline
 # from app.automatic_speech_recognition import SpeechTranscriber
 # from app.audio_transcriber_summarizer import SpeechTranscriberWithSummarization
 # from app.summarization import BartTextSummarizer, T5TextSummarizer, GPT2TextSummarizer, XLNetTextSummarizer
 from app.faster_whisper import SpeechTranscriber
+# from app.transcription import SpeechTranscriber
+from app.models import Video, Summary, Transcription
+from app.summarization import T5TextSummarizer
+from app.summarization import TextSummarizer
 
 # from app.transcription import SpeechTranscriber
 # from app.transcription import WhisperModel
@@ -114,48 +119,42 @@ def transcribe(video_id):
         flash('Video not found or you do not have permission to transcribe it', 'danger')
         return redirect(url_for('video.dashboard'))
 
-    # Verifica se o arquivo de áudio já foi transcribido
-    # if video.transcription:
-    # flash('Audio already transcribed', 'info')
-    # return redirect(url_for('video.dashboard'))
-
-    # Extrai e transcreve o áudio do vídeo
-    # transcription = transcribe_video_audio(video.video_path)
-    # transcriber = SpeechTranscriberWithSummarization()
+    # Realiza a transcrição do vídeo
     transcriber = SpeechTranscriber()
-    # transcriber = WhisperModel()
-    # pipe = pipeline("automatic-speech-recognition", "openai/whisper-large-v2")
-    # result = pipe(video.video_path)
-    # transcription = result['text']
-    # transcription = transcriber.transcribe(video.video_path)
-    # Atualiza o modelo de vídeo com a transcrição
-    video.transcription = transcriber.transcribe(video.video_path)
+    transcription_text, processing_time, language = transcriber.transcribe(video.video_path)
+
+    # Cria uma nova transcrição associada ao vídeo
+    new_transcription = Transcription(text=transcription_text, video_id=video.id, processing_time=processing_time, language=language)
+    db.session.add(new_transcription)
     db.session.commit()
 
     flash('Transcription completed successfully', 'success')
-    return redirect(url_for('video.summarize', video_id=video.id, library_id=2))
+
+    # Redireciona para a rota de resumo com o ID da transcrição
+    return redirect(url_for('video.summarize', transcription_id=new_transcription.id))
 
 
-@video_bp.route('/summarize/<int:video_id>/<int:library_id>')
+@video_bp.route('/summarize/<int:transcription_id>')
 @login_required
-def summarize(video_id, library_id):
-    video = Video.query.get(video_id)
+def summarize(transcription_id):
+    transcription = Transcription.query.get(transcription_id)
 
-    if not video or video.user_id != current_user.id:
-        flash('Video not found or you do not have permission to summarize it', 'danger')
+    if not transcription or transcription.video.user_id != current_user.id:
+        flash('Transcription not found or you do not have permission to summarize it', 'danger')
         return redirect(url_for('video.dashboard'))
 
-    # summarizer = T5TextSummarizer()
-    # summary_content = summarizer.summarize(video.transcription)
-    classifier = pipeline(task="summarization")
-    summary_content = classifier(video.transcription)
-    result = summary_content[0]["summary_text"]
-    new_summary = Summary(content=result, library_id=library_id, video_id=video.id)
+    # Realiza a sumarização do texto da transcrição
+    summarizer = TextSummarizer(language=transcription.language)
+    # summarizer = T5TextSummarizer()  # Você precisa substituir YourSummarizerHere() com o objeto do seu sumarizador
+    summary_text, processing_time = summarizer.summarize(transcription.text)
+
+    # Cria um novo resumo associado à transcrição
+    new_summary = Summary(text=summary_text, transcription_id=transcription.id, processing_time=processing_time)
     db.session.add(new_summary)
     db.session.commit()
 
     flash('Summarization completed successfully', 'success')
-    return redirect(url_for('video.view', video_id=video.id))
+    return redirect(url_for('video.view', video_id=transcription.video.id))
 
 
 @video_bp.route('/download/<int:video_id>')
@@ -167,7 +166,9 @@ def download(video_id):
         flash('Video not found or you do not have permission to download it', 'danger')
         return redirect(url_for('video.dashboard'))
 
-    return send_file(path_or_file='../'+video.video_path, as_attachment=True)
+    return send_file(path_or_file='../' + video.video_path, as_attachment=True)
+
+
 @video_bp.route('/thumbnail/<int:video_id>')
 @login_required
 def thumbnail(video_id):

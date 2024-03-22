@@ -1,5 +1,5 @@
 # routes/__init__.py
-from flask import Blueprint, redirect, url_for
+from flask import Blueprint
 
 main_bp = Blueprint('main', __name__)
 

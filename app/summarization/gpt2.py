@@ -11,7 +11,7 @@ class GPT2TextSummarizer:
 
     def summarize(self, text, max_length=142):
         inputs = self.tokenizer.encode("summarize: " + text, return_tensors='pt').to(self.device)
-        summary_ids = self.model.generate(inputs, max_length=len(text)+1, early_stopping=True)
+        summary_ids = self.model.generate(inputs, max_length=len(text) + 1, early_stopping=True)
         summary = [self.tokenizer.decode(g, skip_special_tokens=True, clean_up_tokenization_spaces=False) for g in
                    summary_ids]
         return summary

@@ -4,19 +4,19 @@
 {% block title %}Upload Video{% endblock %}
 
 {% block content %}
-    <h2>Upload Video</h2>
+<h2>Upload Video</h2>
 
-    <form method="post">
-        <div class="form-group">
-            <label for="title">Title:</label>
-            <input type="text" name="title" class="form-control" required>
-        </div>
-        <div class="form-group">
-            <label for="url">Video URL:</label>
-            <input type="text" name="url" class="form-control" required>
-        </div>
-        <button type="submit" class="btn btn-success">Upload</button>
-    </form>
+<form method="post">
+    <div class="form-group">
+        <label for="title">Title:</label>
+        <input class="form-control" name="title" required type="text">
+    </div>
+    <div class="form-group">
+        <label for="url">Video URL:</label>
+        <input class="form-control" name="url" required type="text">
+    </div>
+    <button class="btn btn-success" type="submit">Upload</button>
+</form>
 
-    <a href="{{ url_for('video.dashboard') }}" class="btn btn-secondary">Back to Dashboard</a>
+<a class="btn btn-secondary" href="{{ url_for('video.dashboard') }}">Back to Dashboard</a>
 {% endblock %}
