@@ -12,8 +12,8 @@ from app import db
 # from app.automatic_speech_recognition import SpeechTranscriber
 # from app.audio_transcriber_summarizer import SpeechTranscriberWithSummarization
 # from app.summarization import BartTextSummarizer, T5TextSummarizer, GPT2TextSummarizer, XLNetTextSummarizer
-from app.faster_whisper import SpeechTranscriber
-# from app.transcription import SpeechTranscriber
+# from app.faster_whisper import SpeechTranscriber
+from app.transcription import SpeechTranscriber
 from app.models import Video, Summary, Transcription
 from app.summarization import T5TextSummarizer
 from app.summarization import TextSummarizer
