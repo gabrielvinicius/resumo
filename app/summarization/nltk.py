@@ -9,8 +9,8 @@ from heapq import nlargest
 
 class TextSummarizer:
     def __init__(self, language='english'):
-        nltk.download('stopwords')
-        nltk.download('punkt')
+        # nltk.download('stopwords')
+        # nltk.download('punkt')
         self.stopwords = set(stopwords.words(language))
 
     def summarize(self, text, ratio=0.3):
