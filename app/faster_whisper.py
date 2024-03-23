@@ -3,13 +3,16 @@ import os
 from datetime import datetime
 import time
 
+import torch
 from moviepy.editor import VideoFileClip
 from faster_whisper import WhisperModel
 
 
 class SpeechTranscriber:
     def __init__(self, model_size="large-v3"):
-        self.model = WhisperModel(model_size, device="CPU", compute_type="int8")
+        self.device = "cuda" if torch.cuda.is_available() else "cpu"
+        self.torch_dtype = 'float16' if torch.cuda.is_available() else 'float32'
+        self.model = WhisperModel(model_size, device=self.device, compute_type=self.torch_dtype)
 
     def transcribe(self, video_path):
         start_time = time.time()
