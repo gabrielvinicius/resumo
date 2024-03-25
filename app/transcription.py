@@ -7,7 +7,7 @@ from moviepy.editor import VideoFileClip
 
 
 class SpeechTranscriber:
-    def __init__(self, model_name='base'):
+    def __init__(self, model_name='large-v2'):
         self.device = "cuda" if torch.cuda.is_available() else "cpu"
         self.torch_dtype = torch.float16 if torch.cuda.is_available() else torch.float32
         self.model = whisper.load_model(name=model_name)
@@ -20,7 +20,7 @@ class SpeechTranscriber:
         video = VideoFileClip(video_path)
         audio = video.audio
         audio.write_audiofile(audio_path, fps=16000, codec='pcm_s16le')
-        result = self.model.transcribe(audio_path, verbose=None)
+        result = self.model.transcribe(audio=audio_path, verbose=True)
 
         LANGUAGES = {
             "en": "english",

@@ -6,7 +6,7 @@ from flask_sqlalchemy import SQLAlchemy
 
 from config import Config  # Importa a classe Config do arquivo no diretório raiz
 
-app = Flask(__name__)
+app: Flask = Flask(__name__)
 app.config.from_object(Config)
 
 db = SQLAlchemy(app)
