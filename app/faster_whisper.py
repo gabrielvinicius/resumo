@@ -8,7 +8,7 @@ from faster_whisper import WhisperModel
 
 
 class SpeechTranscriber:
-    def __init__(self, model_size="large-v3"):
+    def __init__(self, model_size="small"):
         self.device = "cuda" if torch.cuda.is_available() else "cpu"
         self.torch_dtype = 'float16' if torch.cuda.is_available() else 'float32'
         self.model = WhisperModel(model_size, device=self.device, compute_type=self.torch_dtype)
@@ -33,11 +33,10 @@ class SpeechTranscriber:
         # text = "".join(segments)
         text = ""
         for segment in segments:
-          text += segment.text
+            text += segment.text
 
         # Remover o arquivo de áudio temporário após a transcrição
         # os.remove(audio_path)
-
 
         LANGUAGES = {
             "en": "english",
