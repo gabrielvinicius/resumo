@@ -7,7 +7,7 @@ from moviepy.editor import VideoFileClip
 
 
 class SpeechTranscriber:
-    def __init__(self, model_name='base'):
+    def __init__(self, model_name='large-v3'):
         print("Iniciando carregando o Modelo...")
         self.device = "cuda" if torch.cuda.is_available() else "cpu"
         print("O device foi "+self.device)
