@@ -10,6 +10,7 @@ class SpeechTranscriber:
     def __init__(self, model_name='large-v3'):
         print("Iniciando carregando o Modelo...")
         self.device = "cuda" if torch.cuda.is_available() else "cpu"
+        print("O device foi "+self.device)
         self.torch_dtype = torch.float16 if torch.cuda.is_available() else torch.float32
         self.model = whisper.load_model(name=model_name, device=self.device)
         print("Modelo carregado")
