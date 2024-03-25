@@ -15,7 +15,7 @@ from app import db
 # from app.faster_whisper import SpeechTranscriber
 from app.transcription import SpeechTranscriber
 from app.models import Video, Summary, Transcription
-from app.summarization import T5TextSummarizer
+# from app.summarization import T5TextSummarizer
 from app.summarization import TextSummarizer
 
 # from app.transcription import SpeechTranscriber
