@@ -121,7 +121,8 @@ def transcribe(video_id):
     flash('Transcription completed successfully', 'success')
 
     # Redireciona para a rota de resumo com o ID da transcrição
-    return redirect(url_for('video.summarize', transcription_id=new_transcription.id))
+    return redirect(url_for('video.view', video_id=video.id))
+    # return redirect(url_for('video.summarize', transcription_id=new_transcription.id))
 
 
 @video_bp.route('/summarize/<int:transcription_id>')
