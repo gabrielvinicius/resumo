@@ -8,18 +8,23 @@ from moviepy.editor import VideoFileClip
 
 class SpeechTranscriber:
     def __init__(self, model_name='large-v3'):
+        print("Iniciando carregando o Modelo...")
         self.device = "cuda" if torch.cuda.is_available() else "cpu"
         self.torch_dtype = torch.float16 if torch.cuda.is_available() else torch.float32
         self.model = whisper.load_model(name=model_name, device=self.device)
+        print("Modelo carregado")
 
     def transcribe(self, video_path):
+        print("Iniciando transcrição...")
         start_time = time.time()
         video_dir = os.path.dirname(video_path)
         video_name = os.path.splitext(os.path.basename(video_path))[0]
         audio_path = os.path.join(video_dir, f"{video_name}.wav")
+        print("Extraindo áudio do vídeo...")
         video = VideoFileClip(video_path)
         audio = video.audio
         audio.write_audiofile(audio_path, fps=16000, codec='pcm_s16le')
+        print("Transcrição do áudio...")
         result = self.model.transcribe(audio=audio_path, verbose=True)
 
         LANGUAGES = {
@@ -126,4 +131,5 @@ class SpeechTranscriber:
         }
         end_time = time.time()
         processing_time = end_time - start_time
+        print("Transcrição concluída.")
         return result['text'], processing_time, LANGUAGES.get(result['language'])
