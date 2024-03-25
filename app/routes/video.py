@@ -9,23 +9,10 @@ from flask_login import login_required, current_user
 
 
 from app import db
-# from app.automatic_speech_recognition import SpeechTranscriber
-# from app.audio_transcriber_summarizer import SpeechTranscriberWithSummarization
-# from app.summarization import BartTextSummarizer, T5TextSummarizer, GPT2TextSummarizer, XLNetTextSummarizer
-# from app.faster_whisper import SpeechTranscriber
 from app.transcription import SpeechTranscriber
 from app.models import Video, Summary, Transcription
-# from app.summarization import T5TextSummarizer
 from app.summarization import TextSummarizer
 
-# from app.transcription import SpeechTranscriber
-# from app.transcription import WhisperModel
-# from app.summarization.nltk import summarize_nltk
-# from app.summarization.bert import TextSummarizer
-# from app.summarization.spacy import summarize_spacy
-# from app.summarization.tfidf import summarize_tfidf
-# from app.audio_transcriber_summarizer import SpeechTranscriberWithSummarization
-# from app.speech_to_text import SpeechTranscriber
 
 video_bp = Blueprint('video', __name__)
 
