@@ -1,29 +1,36 @@
 <!-- templates/video/view_video.html -->
 {% extends 'layout.html' %}
 
-{% block title %}View Video - {{ video.title }}{% endblock %}
+{% block title %}Visualizar Vídeo - {{ video.title }}{% endblock %}
 
 {% block content %}
-<h2>{{ video.title }}</h2>
-<video controls height="360" width="640">
+  <h2>{{ video.title }}</h2>
+  <video controls height="360" width="640">
     <source src="{{ url_for('video.download', video_id=video.id) }}" type="video/mp4">
-    Your browser does not support the video tag.
-</video>
+    Seu navegador não suporta a tag de vídeo.
+  </video>
 
-<h3>Transcription</h3>
-{% if video.transcription %}
-<p>{{ video.transcription.text }}</p>
-<p>Processing Time: {{ video.transcription.processing_time }} seconds</p>
-{% else %}
-<p>Transcription not available. <a href="{{ url_for('video.transcribe', video_id=video.id) }}">Click here to
-    transcribe</a></p>
-{% endif %}
+  <h3>Transcrição</h3>
+  {% if video.transcription %}
+    <p>{{ video.transcription.text }}</p>
+    <p>Tempo de Processamento: {{ video.transcription.processing_time }} segundos</p>
+  {% else %}
+    <p>Transcrição não disponível. <a href="{{ url_for('video.transcribe', video_id=video.id) }}">Clique aqui para transcrever</a></p>
+  {% endif %}
 
-<h3>Summaries</h3>
-<ul class="list-group">
-    {% for summary in video.transcription.summaries %}
-    <li class="list-group-item">{{ summary.text }}</li>
-    <p>Processing Time: {{ summary.processing_time }} seconds</p>
-    {% endfor %}
-</ul>
+  <h3>Resumos</h3>
+  {% if video.transcription.summaries %}
+    <ul class="list-group">
+      {% for summary in video.transcription.summaries %}
+        <li class="list-group-item">{{ summary.text }}</li>
+        <p>Tempo de Processamento: {{ summary.processing_time }} segundos</p>
+      {% endfor %}
+    </ul>
+  {% else %}
+    {% if video.transcription %}
+      <p>Transcrição disponível. <a href="{{ url_for('video.summarize', transcription_id=video.transcription.id) }}">Clique aqui para Resumir</a></p>
+    {% else %}
+      <p>Nenhum resumo disponível.</p>
+    {% endif %}
+  {% endif %}
 {% endblock %}

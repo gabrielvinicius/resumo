@@ -1,16 +1,18 @@
-// upload.js
-document.getElementById('uploadForm').addEventListener('submit', function() {
-    var progressBar = document.getElementById('progressBar');
-    progressBar.style.display = 'block';
+document.getElementById('file').addEventListener('change', function(e) {
+  var form = document.querySelector('form');
+  var request = new XMLHttpRequest();
 
-    var xhr = new XMLHttpRequest();
-    xhr.upload.onprogress = function(e) {
-        if (e.lengthComputable) {
-            var percentComplete = (e.loaded / e.total) * 100;
-            progressBar.querySelector('.progress-bar').style.width = percentComplete + '%';
-        }
-    };
+  // Adicionar um ouvinte de evento para acompanhar o progresso do upload
+  request.upload.addEventListener('progress', function(e) {
+    var percentComplete = (e.loaded / e.total) * 100;
+    document.querySelector('.progress-bar').style.width = percentComplete + '%';
+  });
 
-    xhr.open('POST', '{{ url_for('video.upload') }}', true);
-    xhr.send(new FormData(this));
+  // Configurar a requisição
+  request.open('POST', form.action);
+  request.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+
+  // Enviar o formulário
+  var formData = new FormData(form);
+  request.send(formData);
 });

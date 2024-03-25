@@ -4,49 +4,49 @@
 {% block title %}Dashboard{% endblock %}
 
 {% block content %}
-<h2>Welcome, {{ current_user.username }}!</h2>
-<div class="card mt-4">
+  <h2>Bem-vindo(a), {{ current_user.username }}!</h2>
+  <div class="card mt-4">
     <div class="card-header">
-        <h3 class="card-title">Upload a New Video</h3>
+      <h3 class="card-title">Enviar um Novo Vídeo</h3>
     </div>
     <div class="card-body">
-        <form action="{{ url_for('video.upload') }}" enctype="multipart/form-data" method="post">
-            <div class="form-group">
-                <label for="title">Title:</label>
-                <input class="form-control" id="title" name="title" required type="text">
-            </div>
-            <div class="form-group">
-                <label for="file">Choose a Video File:</label>
-                <input accept=".mp4, .avi, .mkv, .mov" class="form-control-file" id="file" name="file" required
-                       type="file">
-            </div>
-            <button class="btn btn-primary" type="submit">Upload</button>
-            <div class="progress" role="progressbar" aria-label="Animated striped example" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
-                <div class="progress-bar progress-bar-striped progress-bar-animated" style="width: 0%"></div>
-            </div>
-        </form>
-    </div>
-</div>
-
-<div class="row mt-4">
-    {% for video in videos %}
-    <div class="col-md-4 mb-4">
-        <div class="card">
-            <img alt="Thumbnail" class="card-img-top" src="{{ url_for('video.thumbnail', video_id=video.id) }}">
-            <div class="card-body">
-                <h5 class="card-title">{{ video.title }}</h5>
-                <p class="card-text">File Size: {{ video.file_size }} bytes</p>
-                <p class="card-text">FPS: {{ video.fps }}</p>
-                <p class="card-text">Codec: {{ video.codec }}</p>
-                <p class="card-text">Duration: {{ video.duration }} sec</p>
-                <p class="card-text">Date Added: {{ video.date_added.strftime('%Y-%m-%d %H:%M:%S') }}</p>
-                <a class="btn btn-primary" href="{{ url_for('video.view', video_id=video.id) }}">View Video</a>
-            </div>
+      <form action="{{ url_for('video.upload') }}" enctype="multipart/form-data" method="post">
+        <div class="form-group">
+          <label for="title">Título:</label>
+          <input type="text" id="title" name="title" required class="form-control">
         </div>
+        <div class="form-group">
+          <label for="file">Escolha um Arquivo de Vídeo:</label>
+          <input type="file" id="file" name="file" required class="form-control-file" accept=".mp4, .avi, .mkv, .mov">
+        </div>
+        <button type="submit" class="btn btn-primary">Enviar</button>
+        <div class="progress">
+          <div class="progress-bar progress-bar-striped progress-bar-animated" style="width: 0%;" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+        </div>
+      </form>
     </div>
+  </div>
+
+  <div class="row mt-4">
+    {% for video in videos %}
+      <div class="col-md-4 mb-4">
+        <div class="card">
+          <img src="{{ url_for('video.thumbnail', video_id=video.id) }}" alt="Thumbnail" class="card-img-top">
+          <div class="card-body">
+            <h5 class="card-title">{{ video.title }}</h5>
+            <p class="card-text">Tamanho do Arquivo: {{ video.file_size }} bytes</p>
+            <p class="card-text">FPS: {{ video.fps }}</p>
+            <p class="card-text">Codec: {{ video.codec }}</p>
+            <p class="card-text">Duração: {{ video.duration }} seg</p>
+            <p class="card-text">Data de Adição: {{ video.date_added.strftime('%Y-%m-%d %H:%M:%S') }}</p>
+            <a href="{{ url_for('video.view', video_id=video.id) }}" class="btn btn-primary">Ver Vídeo</a>
+          </div>
+        </div>
+      </div>
     {% endfor %}
-</div>
+  </div>
 {% endblock %}
+
 {% block scripts %}
-<script src="{{ url_for('static', filename='upload.js') }}"></script>
+  <script src="{{ url_for('static', filename='upload.js') }}"></script>
 {% endblock %}
