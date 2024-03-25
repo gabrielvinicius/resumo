@@ -12,8 +12,7 @@ from app import db
 # from app.transcription import SpeechTranscriber
 from app.faster_whisper import SpeechTranscriber
 from app.models import Video, Summary, Transcription
-from app.summarization import TextSummarizer
-
+from app.summarization import TextSummarizer, TFIDFSummarizer
 
 video_bp = Blueprint('video', __name__)
 
@@ -135,7 +134,8 @@ def summarize(transcription_id):
         return redirect(url_for('video.dashboard'))
 
     # Realiza a sumarização do texto da transcrição
-    summarizer = TextSummarizer(language=transcription.language)
+    #summarizer = TextSummarizer(language=transcription.language)
+    summarizer = TFIDFSummarizer(language=transcription.language)
     # summarizer = T5TextSummarizer()  # Você precisa substituir YourSummarizerHere() com o objeto do seu sumarizador
     summary_text, processing_time = summarizer.summarize(transcription.text)
 
