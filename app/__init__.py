@@ -23,10 +23,12 @@ def load_user(user_id):
     return User.query.get(int(user_id))
 
 
-from app.routes import auth, video, main_bp
+from app.routes import auth, video, main_bp, summarization, transcription
 
 # Importa os módulos de rotas
 
 app.register_blueprint(auth.auth_bp)
 app.register_blueprint(video.video_bp)
 app.register_blueprint(main_bp)
+app.register_blueprint(summarization.summarization_bp)
+app.register_blueprint(transcription.transcription_bp)

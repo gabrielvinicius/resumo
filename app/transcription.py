@@ -26,7 +26,7 @@ class SpeechTranscriber:
         audio = video.audio
         audio.write_audiofile(audio_path, fps=16000, codec='pcm_s16le')
         print("Transcrição do áudio...")
-        result = self.model.transcribe(audio=audio_path, verbose=True)
+        result = self.model.transcribe(audio=audio_path, verbose=False)
 
         LANGUAGES = {
             "en": "english",

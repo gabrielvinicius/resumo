@@ -15,11 +15,11 @@
     <p>{{ video.transcription.text }}</p>
     <p>Tempo de Processamento: {{ video.transcription.processing_time }} segundos</p>
   {% else %}
-    <p>Transcrição não disponível. <a href="{{ url_for('video.transcribe', video_id=video.id) }}">Clique aqui para transcrever</a></p>
+    <p>Transcrição não disponível. <a href="{{ url_for('transcription.transcribe', video_id=video.id) }}">Clique aqui para transcrever</a></p>
   {% endif %}
 
   <h3>Resumos</h3>
-  {% if video.transcription.summaries %}
+  {% if video.transcription and video.transcription.summaries %}
     <ul class="list-group">
       {% for summary in video.transcription.summaries %}
         <li class="list-group-item">{{ summary.text }}</li>
@@ -28,7 +28,7 @@
     </ul>
   {% else %}
     {% if video.transcription %}
-      <p>Transcrição disponível. <a href="{{ url_for('video.summarize', transcription_id=video.transcription.id) }}">Clique aqui para Resumir</a></p>
+      <p>Resumo disponível. <a href="{{ url_for('summarization.summarize', transcription_id=video.transcription.id) }}">Clique aqui para Resumir</a></p>
     {% else %}
       <p>Nenhum resumo disponível.</p>
     {% endif %}

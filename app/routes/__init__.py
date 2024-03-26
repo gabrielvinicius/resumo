@@ -1,5 +1,11 @@
 # routes/__init__.py
-from flask import Blueprint
+from flask import Blueprint, redirect, url_for
+from flask_login import current_user
+
+from app.routes.auth import auth_bp
+from app.routes.video import video_bp
+from app.routes.transcription import transcription_bp
+from app.routes.summarization import summarization_bp
 
 main_bp = Blueprint('main', __name__)
 
@@ -10,16 +16,3 @@ def index():
         return redirect(url_for('video.dashboard'))
     else:
         return redirect(url_for('auth.login'))
-
-
-# Cria um Blueprint chamado 'video' e associa-o ao pacote 'routes'
-video_bp = Blueprint('video', __name__)
-
-# Importa as rotas relacionadas a vídeos
-from .video import *
-
-# Cria um Blueprint chamado 'auth' e associa-o ao pacote 'routes'
-auth_bp = Blueprint('auth', __name__)
-
-# Importa as rotas relacionadas à autenticação
-from .auth import *
