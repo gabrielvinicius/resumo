@@ -4,24 +4,42 @@
 {% block title %}Dashboard{% endblock %}
 
 {% block content %}
-  <h2>Bem-vindo(a), {{ current_user.username }}!</h2>
-  <div class="card mt-4">
+  <h2 class="mb-4">Bem-vindo(a), {{ current_user.username }}!</h2>
+  <div class="card">
     <div class="card-header">
       <h3 class="card-title">Enviar um Novo Vídeo</h3>
     </div>
     <div class="card-body">
       <form action="{{ url_for('video.upload') }}" enctype="multipart/form-data" method="post">
-        <div class="form-group">
-          <label for="title">Título:</label>
-          <input type="text" id="title" name="title" required class="form-control">
+        <div class="row mb-3">
+          <div class="col-md-6">
+            <label for="title" class="form-label">Título:</label>
+            <input type="text" id="title" name="title" required class="form-control">
+          </div>
+          <div class="col-md-6">
+            <label for="upload_type" class="form-label">Tipo de Upload:</label>
+            <select id="upload_type" name="upload_type" class="form-select">
+              <option value="file">Arquivo de Vídeo</option>
+              <option value="youtube">Link do YouTube</option>
+            </select>
+          </div>
         </div>
-        <div class="form-group">
-          <label for="file">Escolha um Arquivo de Vídeo:</label>
-          <input type="file" id="file" name="file" required class="form-control-file" accept=".mp4, .avi, .mkv, .mov">
+        <div class="row mb-3 upload-file">
+          <div class="col-md-12">
+            <label for="file" class="form-label">Escolha um Arquivo de Vídeo:</label>
+            <input type="file" id="file" name="file" class="form-control" accept=".mp4, .avi, .mkv, .mov">
+          </div>
         </div>
-        <button type="submit" class="btn btn-primary">Enviar</button>
-        <div class="progress">
-          <div class="progress-bar progress-bar-striped progress-bar-animated" style="width: 0%;" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+        <div class="row mb-3 upload-youtube" style="display: none;">
+          <div class="col-md-12">
+            <label for="youtube_link" class="form-label">Insira um link do YouTube:</label>
+            <input type="text" id="youtube_link" name="youtube_link" class="form-control">
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-6">
+            <button type="submit" class="btn btn-primary">Enviar</button>
+          </div>
         </div>
       </form>
     </div>
@@ -49,4 +67,17 @@
 
 {% block scripts %}
   <script src="{{ url_for('static', filename='upload.js') }}"></script>
+  <script>
+    $(document).ready(function() {
+      $('#upload_type').change(function() {
+        if ($(this).val() == 'youtube') {
+          $('.upload-file').hide();
+          $('.upload-youtube').show();
+        } else {
+          $('.upload-file').show();
+          $('.upload-youtube').hide();
+        }
+      });
+    });
+  </script>
 {% endblock %}
