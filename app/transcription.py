@@ -18,15 +18,15 @@ class SpeechTranscriber:
     def transcribe(self, video_path):
         print("Iniciando transcrição...")
         start_time = time.time()
-        video_dir = os.path.dirname(video_path)
-        video_name = os.path.splitext(os.path.basename(video_path))[0]
-        audio_path = os.path.join(video_dir, f"{video_name}.wav")
-        print("Extraindo áudio do vídeo...")
-        video = VideoFileClip(video_path)
-        audio = video.audio
-        audio.write_audiofile(audio_path, fps=16000, codec='pcm_s16le')
-        print("Transcrição do áudio...")
-        result = self.model.transcribe(audio=audio_path, verbose=False)
+        # video_dir = os.path.dirname(video_path)
+        # video_name = os.path.splitext(os.path.basename(video_path))[0]
+        # audio_path = os.path.join(video_dir, f"{video_name}.wav")
+        # print("Extraindo áudio do vídeo...")
+        # video = VideoFileClip(video_path)
+        # audio = video.audio
+        # audio.write_audiofile(audio_path, fps=16000, codec='pcm_s16le')
+        # print("Transcrição do áudio...")
+        result = self.model.transcribe(audio=video_path, verbose=False)
 
         LANGUAGES = {
             "en": "english",
