@@ -5,7 +5,6 @@
 {% block content %}
   <h2>{{ video.title }}</h2>
   {{ video.get_video_embed_html() | safe }}
-
   <h3>Transcrição</h3>
   {% if video.transcription %}
     <p>{{ video.transcription.text }}</p>

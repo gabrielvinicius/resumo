@@ -30,7 +30,7 @@ class Transcription(db.Model):
     text = db.Column(db.Text, nullable=False)
     processing_time = db.Column(db.Float, nullable=False)
     video_id = db.Column(db.Integer, db.ForeignKey('video.id'), nullable=False)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=datetime.now())
     language = db.Column(db.String(50), nullable=True)
     # Adiciona relação com Summary (um para muitos)
     summaries = db.relationship('Summary', backref='transcription', lazy=True)
@@ -46,7 +46,7 @@ class Video(db.Model):
     thumbnail_path = db.Column(db.String(255), nullable=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     codec = db.Column(db.String(20), nullable=True)
-    date_added = db.Column(db.DateTime, default=datetime.utcnow)  # Data em que o vídeo foi adicionado
+    date_added = db.Column(db.DateTime, default=datetime.now())  # Data em que o vídeo foi adicionado
     fps = db.Column(db.Float, nullable=True)
     transcription = db.relationship('Transcription', backref='video', uselist=False)
 
@@ -54,7 +54,10 @@ class Video(db.Model):
         youtube_pattern = re.compile(r'^https?://(?:www\.)?youtube\.com/watch\?v=[\w-]+(?:&.*)?$')
         if bool(youtube_pattern.match(self.video_path)):
             yt = YouTube(self.video_path)
-            return yt.embed_html
+            # return yt.embed_html
+            return '<iframe width="640" height="360" src="' + yt.embed_url + ('" frameborder="0" allow="autoplay; '
+                                                                              'encrypted-media" '
+                                                                              'allowfullscreen></iframe>')
         else:
             return (f'<video controls height="360" width="640"><source src="'
                     f'{url_for("video.download", video_id=self.id)}" type="video/mp4">'
@@ -74,6 +77,6 @@ class Summary(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     text = db.Column(db.Text, nullable=False)
     transcription_id = db.Column(db.Integer, db.ForeignKey('transcription.id'), nullable=False)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=datetime.now())
     processing_time = db.Column(db.Float, nullable=False)
     # Adicione outras colunas conforme necessário
