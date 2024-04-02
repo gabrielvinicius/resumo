@@ -1,6 +1,7 @@
 # app/models.py
+import re
 from datetime import datetime
-
+from pytube import YouTube
 from flask_login import UserMixin
 
 from app import db
@@ -38,6 +39,7 @@ class Video(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(100), nullable=False)
     video_path = db.Column(db.String(255), nullable=True)
+    audio_path = db.Column(db.String(255), nullable=True)
     file_size = db.Column(db.Integer, nullable=True)
     duration = db.Column(db.Float, nullable=True)
     thumbnail_path = db.Column(db.String(255), nullable=True)
@@ -46,6 +48,29 @@ class Video(db.Model):
     date_added = db.Column(db.DateTime, default=datetime.utcnow)  # Data em que o vídeo foi adicionado
     fps = db.Column(db.Float, nullable=True)
     transcription = db.relationship('Transcription', backref='video', uselist=False)
+
+    def get_video_embed_html(self):
+        youtube_pattern = re.compile(r'^https?://(?:www\.)?youtube\.com/watch\?v=[\w-]+(?:&.*)?$')
+        # youtube_link = request.form.get('youtube_link')
+        if bool(youtube_pattern.match(self.video_path)):
+            yt = YouTube(self.video_path)
+            return yt.embed_html
+        else:
+            html = '<video controls height="360" width="640"><source src=../download/' + str(self.id) + (
+                '" type="video/mp4">Seu '
+                'navegador não suporta a'
+                ' tag de vídeo.</video>')
+            return html
+
+    def get_thumbnail_html(self):
+        youtube_pattern = re.compile(r'^https?://(?:www\.)?youtube\.com/watch\?v=[\w-]+(?:&.*)?$')
+        # youtube_link = request.form.get('youtube_link')
+        if bool(youtube_pattern.match(self.video_path)):
+            yt = YouTube(self.video_path)
+            return '<img src="'+self.thumbnail+'" alt="Thumbnail" class="card-img-top">'
+        else:
+            html = '<img src="../thumbnail/'+str(self.id)+'"alt="Thumbnail" class="card-img-top"/>'
+            return html
 
 
 class Summary(db.Model):

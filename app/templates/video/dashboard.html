@@ -49,7 +49,8 @@
     {% for video in videos %}
       <div class="col-md-4 mb-4">
         <div class="card">
-          <img src="{{ url_for('video.thumbnail', video_id=video.id) }}" alt="Thumbnail" class="card-img-top">
+          {{ video.get_thumbnail_html() }}
+          <!--<img src="{{ url_for('video.thumbnail', video_id=video.id) }}" alt="Thumbnail" class="card-img-top">-->
           <div class="card-body">
             <h5 class="card-title">{{ video.title }}</h5>
             <p class="card-text">Tamanho do Arquivo: {{ video.file_size }} bytes</p>
