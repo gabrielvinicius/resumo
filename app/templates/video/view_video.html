@@ -1,14 +1,10 @@
-<!-- templates/video/view_video.html -->
 {% extends 'layout.html' %}
 
 {% block title %}Visualizar Vídeo - {{ video.title }}{% endblock %}
 
 {% block content %}
   <h2>{{ video.title }}</h2>
-  <video controls height="360" width="640">
-    <source src="{{ url_for('video.download', video_id=video.id) }}" type="video/mp4">
-    Seu navegador não suporta a tag de vídeo.
-  </video>
+  {{ video.get_video_embed_html() | safe }}
 
   <h3>Transcrição</h3>
   {% if video.transcription %}

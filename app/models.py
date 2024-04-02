@@ -3,6 +3,7 @@ import re
 from datetime import datetime
 from pytube import YouTube
 from flask_login import UserMixin
+from flask import url_for
 
 from app import db
 
@@ -51,26 +52,22 @@ class Video(db.Model):
 
     def get_video_embed_html(self):
         youtube_pattern = re.compile(r'^https?://(?:www\.)?youtube\.com/watch\?v=[\w-]+(?:&.*)?$')
-        # youtube_link = request.form.get('youtube_link')
         if bool(youtube_pattern.match(self.video_path)):
             yt = YouTube(self.video_path)
             return yt.embed_html
         else:
-            html = '<video controls height="360" width="640"><source src=../download/' + str(self.id) + (
-                '" type="video/mp4">Seu '
-                'navegador não suporta a'
-                ' tag de vídeo.</video>')
-            return html
+            return (f'<video controls height="360" width="640"><source src="'
+                    f'{url_for("video.download", video_id=self.id)}" type="video/mp4">'
+                    f'Seu navegador não suporta a tag de vídeo.</video>')
 
     def get_thumbnail_html(self):
         youtube_pattern = re.compile(r'^https?://(?:www\.)?youtube\.com/watch\?v=[\w-]+(?:&.*)?$')
-        # youtube_link = request.form.get('youtube_link')
         if bool(youtube_pattern.match(self.video_path)):
             yt = YouTube(self.video_path)
-            return '<img src="'+self.thumbnail+'" alt="Thumbnail" class="card-img-top">'
+            return '<img src="' + yt.thumbnail_url + '" alt="Thumbnail" class="card-img-top">'
         else:
-            html = '<img src="../thumbnail/'+str(self.id)+'"alt="Thumbnail" class="card-img-top"/>'
-            return html
+            return '<img src="' + url_for('video.thumbnail',
+                                          video_id=self.id) + '" alt="Thumbnail" class="card-img-top">'
 
 
 class Summary(db.Model):

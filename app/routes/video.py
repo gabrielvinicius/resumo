@@ -135,8 +135,14 @@ def save_video_file(file, title):
     fps = video_info.get('fps')
     codec = video_info['codec']
 
+    audio = video.audio
+    audio_filename = str(uuid1()) + '.wav'
+    audio_path = os.path.join(UPLOAD_FOLDER, audio_filename)
+    audio.write_audiofile(audio_path, fps=16000, codec='pcm_s16le')
+
     new_video = Video(title=title, video_path=file_path, file_size=file_size, duration=duration,
-                      thumbnail_path=thumbnail_path, user_id=current_user.id, fps=fps, codec=codec)
+                      thumbnail_path=thumbnail_path, user_id=current_user.id, fps=fps, codec=codec,
+                      audio_path=audio_path)
 
     # video_path = '/path/to/video/file.mp4'
     return new_video
@@ -154,5 +160,5 @@ def process_youtube_link(youtube_link, title):
     thumbnail_url = yt.thumbnail_url
     duration = yt.length
     new_video = Video(title=title, video_path=youtube_link, duration=duration,
-                      thumbnail_path=thumbnail_url, user_id=current_user.id, audio_patch = file_path )
+                      thumbnail_path=thumbnail_url, user_id=current_user.id, audio_path=file_path)
     return new_video

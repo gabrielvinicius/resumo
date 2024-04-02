@@ -24,7 +24,7 @@ def transcribe(video_id):
 
     # Realiza a transcrição do vídeo
     transcriber = SpeechTranscriber()
-    transcription_text, processing_time, language = transcriber.transcribe(video.video_path)
+    transcription_text, processing_time, language = transcriber.transcribe(video.audio_path)
 
     # Cria uma nova transcrição associada ao vídeo
     new_transcription = Transcription(text=transcription_text, video_id=video.id, processing_time=processing_time, language=language)
