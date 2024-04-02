@@ -59,6 +59,9 @@
             <p class="card-text">Duração: {{ video.duration }} seg</p>
             <p class="card-text">Data de Adição: {{ video.date_added.strftime('%Y-%m-%d %H:%M:%S') }}</p>
             <a href="{{ url_for('video.view', video_id=video.id) }}" class="btn btn-primary">Ver Vídeo</a>
+          <form id="delete-form-{{ video.id }}" action="{{ url_for('video.delete', video_id=video.id) }}" method="post" style="display: inline;">
+          <button type="button" class="btn btn-danger" onclick="confirmDelete({{ video.id }})">Excluir</button>
+        </form>
           </div>
         </div>
       </div>
@@ -80,5 +83,10 @@
         }
       });
     });
+    function confirmDelete(videoId) {
+    if (confirm("Tem certeza de que deseja excluir este vídeo?")) {
+      document.getElementById('delete-form-' + videoId).submit();
+    }
+  }
   </script>
 {% endblock %}

@@ -7,7 +7,7 @@ import moviepy.editor as mp
 from flask import Blueprint, render_template, redirect, url_for, flash, request, send_file
 from flask_login import login_required, current_user
 from app import db
-from app.models import Video
+from app.models import Video, Transcription, Summary
 from pytube import YouTube
 
 # from app.utils import allowed_file
@@ -112,6 +112,32 @@ def thumbnail(video_id):
         flash('Video not found or you do not have permission to download it', 'danger')
         return redirect(url_for('video.dashboard'))
     return send_file(os.path.join('..', video.thumbnail_path), as_attachment=True)
+
+
+@video_bp.route('/delete/<int:video_id>', methods=['POST'])
+@login_required
+def delete(video_id):
+    video = Video.query.get(video_id)
+    if not check_video_permission(video):
+        flash('Video not found or you do not have permission to delete it', 'danger')
+        return redirect(url_for('video.dashboard'))
+
+    # Remove todas as revisões associadas ao vídeo
+    # Summary.query.filter_by(video_id=video.id).delete()
+
+    # Remove todas as transcrições associadas ao vídeo
+    # Transcription.query.filter_by(video_id=video.id).delete()
+    # Excluir arquivos de áudio e vídeo, se existirem
+    if video.audio_path and os.path.exists(video.audio_path):
+        os.remove(video.audio_path)
+    if video.video_path and os.path.exists(video.video_path):
+        os.remove(video.video_path)
+    # Remove o vídeo
+    db.session.delete(video)
+    db.session.commit()
+
+    flash('Video deleted successfully', 'success')
+    return redirect(url_for('video.dashboard'))
 
 
 def save_video_file(file, title):

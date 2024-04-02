@@ -22,7 +22,7 @@ class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(50), unique=True, nullable=False)
     password = db.Column(db.String(250), nullable=False)
-    videos = db.relationship('Video', backref='user', lazy=True)
+    videos = db.relationship('Video', backref='user', lazy=True, cascade='all, delete-orphan')
 
 
 class Transcription(db.Model):
@@ -33,7 +33,7 @@ class Transcription(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.now())
     language = db.Column(db.String(50), nullable=True)
     # Adiciona relação com Summary (um para muitos)
-    summaries = db.relationship('Summary', backref='transcription', lazy=True)
+    summaries = db.relationship('Summary', backref='transcription', lazy=True, cascade='all, delete-orphan')
 
 
 class Video(db.Model):
@@ -48,7 +48,7 @@ class Video(db.Model):
     codec = db.Column(db.String(20), nullable=True)
     date_added = db.Column(db.DateTime, default=datetime.now())  # Data em que o vídeo foi adicionado
     fps = db.Column(db.Float, nullable=True)
-    transcription = db.relationship('Transcription', backref='video', uselist=False)
+    transcription = db.relationship('Transcription', backref='video', uselist=False, cascade='all, delete-orphan')
 
     def get_video_embed_html(self):
         youtube_pattern = re.compile(r'^https?://(?:www\.)?youtube\.com/watch\?v=[\w-]+(?:&.*)?$')
