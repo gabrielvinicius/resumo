@@ -3,7 +3,8 @@ from flask import Blueprint, redirect, url_for, flash
 from flask_login import login_required, current_user
 from app import db
 from app.models import Video, Transcription
-from app.transcription import SpeechTranscriber
+# from app.transcription import SpeechTranscriber
+from app.faster_whisper import SpeechTranscriber
 
 transcription_bp = Blueprint('transcription', __name__)
 
