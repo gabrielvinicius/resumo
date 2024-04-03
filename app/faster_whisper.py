@@ -13,18 +13,18 @@ class SpeechTranscriber:
         self.torch_dtype = 'float16' if torch.cuda.is_available() else 'float32'
         self.model = WhisperModel(model_size, device=self.device, compute_type=self.torch_dtype)
 
-    def transcribe(self, video_path):
+    def transcribe(self, audio_path):
         start_time = time.time()
 
         # Extrair áudio do arquivo de vídeo
-        video_dir = os.path.dirname(video_path)
-        video_name = os.path.splitext(os.path.basename(video_path))[0]
-        audio_path = os.path.join(video_dir, f"{video_name}.wav")
+        # video_dir = os.path.dirname(video_path)
+        # video_name = os.path.splitext(os.path.basename(video_path))[0]
+        # audio_path = os.path.join(video_dir, f"{video_name}.wav")
         # audio_path = os.path.join(video_dir, f"{video_name}.flac")
-        video = VideoFileClip(video_path)
-        audio = video.audio
+        # video = VideoFileClip(video_path)
+        # audio = video.audio
         # audio.write_audiofile(audio_path, fps=16000)  # Especificando a taxa de amostragem como 16000 Hz
-        audio.write_audiofile(audio_path, fps=16000, codec='pcm_s16le')
+        # audio.write_audiofile(audio_path, fps=16000, codec='pcm_s16le')
 
         # Transcrição do áudio extraído
         segments, info = self.model.transcribe(audio=audio_path, beam_size=5, vad_filter=True)

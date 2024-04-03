@@ -15,7 +15,7 @@ class SpeechTranscriber:
         self.model = whisper.load_model(name=model_name, device=self.device)
         print("Modelo carregado")
 
-    def transcribe(self, video_path):
+    def transcribe(self, audio_path):
         print("Iniciando transcrição...")
         start_time = time.time()
         # video_dir = os.path.dirname(video_path)
@@ -26,7 +26,7 @@ class SpeechTranscriber:
         # audio = video.audio
         # audio.write_audiofile(audio_path, fps=16000, codec='pcm_s16le')
         # print("Transcrição do áudio...")
-        result = self.model.transcribe(audio=video_path, verbose=False)
+        result = self.model.transcribe(audio=audio_path, verbose=False)
 
         LANGUAGES = {
             "en": "english",
