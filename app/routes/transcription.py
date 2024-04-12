@@ -1,7 +1,8 @@
 # app/routes/transcription.py
-from turtledemo.forest import start
+from io import BytesIO
 
-from flask import Blueprint, redirect, url_for, flash
+
+from flask import Blueprint, redirect, url_for, flash, send_file
 from flask_login import login_required, current_user
 from app import db
 from app.models import Video, Transcription, Segment, Word
@@ -23,7 +24,7 @@ def transcribe(video_id):
 
     if not check_video_permission(video):
         flash('Video not found or you do not have permission to transcribe it', 'danger')
-        return redirect(url_for('video.dashboard'))
+        return redirect(url_for('main.dashboard'))
 
     # Realiza a transcrição do vídeo
     transcriber = SpeechTranscriber()
@@ -48,3 +49,15 @@ def transcribe(video_id):
     flash('Transcription completed successfully', 'success')
     # Redireciona para a rota de visualização do vídeo
     return redirect(url_for('video.view', video_id=video.id))
+
+
+@transcription_bp.route('/transcribe/download/<int:transcription_id>')
+@login_required
+def download_transcribe(transcription_id):
+    transcription = Transcription.query.get(transcription_id)
+    if not transcription:
+        flash('Transcription not found', 'danger')
+        return redirect(url_for('main.dashboard'))
+
+    return send_file(path_or_file=BytesIO(transcription.text.encode('utf-8')), mimetype='text/plain',
+                     as_attachment=True, download_name='summary.txt')

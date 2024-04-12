@@ -2,13 +2,15 @@
 import os
 import re
 from uuid import uuid1
+
 import imageio
 import moviepy.editor as mp
 from flask import Blueprint, render_template, redirect, url_for, flash, request, send_file
 from flask_login import login_required, current_user
-from app import db
-from app.models import Video, Transcription, Summary
 from pytube import YouTube
+
+from app import db
+from app.models import Video
 
 # from app.utils import allowed_file
 
@@ -27,14 +29,8 @@ def check_video_permission(video):
     return video and video.user_id == current_user.id
 
 
-@video_bp.route('/dashboard')
-@login_required
-def dashboard():
-    videos = Video.query.filter_by(user_id=current_user.id).all()
-    return render_template('video/dashboard.html', videos=videos)
 
-
-@video_bp.route('/upload', methods=['POST'])
+@video_bp.route('/video/upload', methods=['POST'])
 @login_required
 def upload():
     title = request.form.get('title')
@@ -77,50 +73,50 @@ def upload():
             return redirect(url_for('video.view', video_id=new_video.id))
         else:
             flash('Insira um link valido do Youtube', 'danger')
-            return redirect(url_for('video.dashboard'))
+            return redirect(url_for('main.dashboard'))
 
 
-@video_bp.route('/view/<int:video_id>')
+@video_bp.route('/video/view/<int:video_id>')
 @login_required
 def view(video_id):
     video = Video.query.get(video_id)
 
     if not check_video_permission(video):
         flash('Video not found or you do not have permission to view it', 'danger')
-        return redirect(url_for('video.dashboard'))
+        return redirect(url_for('main.dashboard'))
 
     return render_template('video/view_video.html', video=video)
 
 
-@video_bp.route('/download/<int:video_id>')
+@video_bp.route('/video/download/<int:video_id>')
 @login_required
 def download(video_id):
     video = Video.query.get(video_id)
 
     if not check_video_permission(video):
         flash('Video not found or you do not have permission to download it', 'danger')
-        return redirect(url_for('video.dashboard'))
+        return redirect(url_for('main.dashboard'))
 
     return send_file(os.path.join('..', video.video_path), as_attachment=True)
 
 
-@video_bp.route('/thumbnail/<int:video_id>')
+@video_bp.route('/video/thumbnail/<int:video_id>')
 @login_required
 def thumbnail(video_id):
     video = Video.query.get(video_id)
     if not check_video_permission(video):
         flash('Video not found or you do not have permission to download it', 'danger')
-        return redirect(url_for('video.dashboard'))
+        return redirect(url_for('main.dashboard'))
     return send_file(os.path.join('..', video.thumbnail_path), as_attachment=True)
 
 
-@video_bp.route('/delete/<int:video_id>', methods=['POST'])
+@video_bp.route('/video/delete/<int:video_id>', methods=['POST'])
 @login_required
 def delete(video_id):
     video = Video.query.get(video_id)
     if not check_video_permission(video):
         flash('Video not found or you do not have permission to delete it', 'danger')
-        return redirect(url_for('video.dashboard'))
+        return redirect(url_for('main.dashboard'))
 
     # Remove todas as revisões associadas ao vídeo
     # Summary.query.filter_by(video_id=video.id).delete()
@@ -137,7 +133,7 @@ def delete(video_id):
     db.session.commit()
 
     flash('Video deleted successfully', 'success')
-    return redirect(url_for('video.dashboard'))
+    return redirect(url_for('main.dashboard'))
 
 
 def save_video_file(file, title):

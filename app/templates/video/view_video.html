@@ -33,7 +33,7 @@
         {% if video.transcription %}
         <ul class="list-group">
           <li class="list-group-item">{{ video.transcription.text }}</li>
-          <p><strong>Tempo de Processamento:</strong> {{ video.transcription.processing_time }} segundos</p>
+          <p><strong>Tempo de Processamento:</strong> {{ video.transcription.processing_time}} segundos</p>
         </ul>
           {% else %}
           <p>Transcrição não disponível. <a href="{{ url_for('transcription.transcribe', video_id=video.id) }}">Clique aqui para transcrever</a></p>
@@ -47,7 +47,8 @@
           <ul class="list-group">
             {% for summary in video.transcription.summaries %}
               <li class="list-group-item">{{ summary.text }}</li>
-              <p><strong>Tempo de Processamento:</strong> {{ summary.processing_time }} segundos</p>
+              <p><strong>Tempo de Processamento:</strong> {{summary.processing_time}} segundos</p>
+              <p><a href="{{ url_for('summarization.download_summary', summary_id=summary.id) }}" class="btn btn-primary">Baixar Resumo</a></p>
             {% endfor %}
           </ul>
         {% else %}
