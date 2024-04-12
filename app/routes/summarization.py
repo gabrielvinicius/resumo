@@ -4,6 +4,7 @@ from flask_login import login_required, current_user
 from app import db
 from app.models import Transcription, Summary
 from app.summarization import TFIDFSummarizer
+from app.summarization import VideoTopicSummarizer
 
 summarization_bp = Blueprint('summarization', __name__)
 
@@ -24,6 +25,8 @@ def summarize(transcription_id):
 
     # Realiza a sumarização do texto da transcrição
     summarizer = TFIDFSummarizer(language=transcription.language)
+    # summarizerTopic = VideoTopicSummarizer(transcription)
+    # print("Topicos:", summarizerTopic.identify_topic())
     summary_text, processing_time = summarizer.summarize(transcription.text)
 
     # Cria um novo resumo associado à transcrição

@@ -8,6 +8,7 @@ summarization_bp = Blueprint('summarization', __name__)
 from .nltk import TextSummarizer
 # from .bert import TextSummarizer
 # from .spacy import summarize_spacy
+from .cluster import VideoTopicSummarizer
 from .tfidf import TFIDFSummarizer
 # from .bart import BartTextSummarizer
 # from .T5 import T5TextSummarizer

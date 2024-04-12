@@ -4,13 +4,15 @@ from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize, sent_tokenize
 from sklearn.feature_extraction.text import TfidfVectorizer
 from heapq import nlargest
+from app.summarization import VideoTopicSummarizer
 
-# Baixe as stopwords e o punkt
-nltk.download('stopwords')
-nltk.download('punkt')
 
 class TFIDFSummarizer:
     def __init__(self, language='english'):
+        # Baixe as stopwords e o punkt
+        nltk.download('stopwords')
+        nltk.download('punkt')
+
         if language.lower() in stopwords.fileids():
             self.stopwords = set(stopwords.words(language))
         else:

@@ -25,6 +25,23 @@ class User(db.Model, UserMixin):
     videos = db.relationship('Video', backref='user', lazy=True, cascade='all, delete-orphan')
 
 
+class Word(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    text = db.Column(db.String(100), nullable=False)
+    start = db.Column(db.Float, nullable=True)
+    end = db.Column(db.Float, nullable=True)
+    segment_id = db.Column(db.Integer, db.ForeignKey('segment.id'), nullable=False)  # Relação com Segment
+
+
+class Segment(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    start = db.Column(db.Float, nullable=False)
+    end = db.Column(db.Float, nullable=False)
+    text = db.Column(db.Text, nullable=False)
+    transcription_id = db.Column(db.Integer, db.ForeignKey('transcription.id'), nullable=False)
+    words = db.relationship('Word', backref='segment', lazy=True, cascade='all, delete-orphan')
+
+
 class Transcription(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     text = db.Column(db.Text, nullable=False)
@@ -34,6 +51,7 @@ class Transcription(db.Model):
     language = db.Column(db.String(50), nullable=True)
     # Adiciona relação com Summary (um para muitos)
     summaries = db.relationship('Summary', backref='transcription', lazy=True, cascade='all, delete-orphan')
+    segments = db.relationship('Segment', backref='transcription', lazy=True, cascade='all, delete-orphan')
 
 
 class Video(db.Model):
@@ -59,7 +77,7 @@ class Video(db.Model):
                                                                               'encrypted-media" '
                                                                               'allowfullscreen></iframe>')
         else:
-            return (f'<video controls height="360" width="640"><source src="'
+            return (f'<video controls width="426" height="240"><source src="'
                     f'{url_for("video.download", video_id=self.id)}" type="video/mp4">'
                     f'Seu navegador não suporta a tag de vídeo.</video>')
 

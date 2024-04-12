@@ -3,29 +3,61 @@
 {% block title %}Visualizar Vídeo - {{ video.title }}{% endblock %}
 
 {% block content %}
-  <h2>{{ video.title }}</h2>
-  {{ video.get_video_embed_html() | safe }}
-  <h3>Transcrição</h3>
-  {% if video.transcription %}
-    <p>{{ video.transcription.text }}</p>
-    <p>Tempo de Processamento: {{ video.transcription.processing_time }} segundos</p>
-  {% else %}
-    <p>Transcrição não disponível. <a href="{{ url_for('transcription.transcribe', video_id=video.id) }}">Clique aqui para transcrever</a></p>
-  {% endif %}
+  <div class="row" style="height: 50vh;">
+    <div class="col-md-6 mb-4" style="height: 100%;">
+      <h2>{{ video.title }}</h2>
+      <div class="scrollable" style="max-height: 80%; overflow-y: auto;">
+      {{ video.get_video_embed_html() | safe }}
+      </div>
+    </div>
+    <div class="col-md-6 mb-4" style="height: 100%;">
+      <h3>Segmentos</h3>
+      <div class="scrollable" style="max-height: 80%; overflow-y: auto;">
+        <ul class="list-group">
+          {% for segment in video.transcription.segments %}
+            <li class="list-group-item">
+              {{ segment.text }}
+              <br>
+              <small>Início: {{ segment.start }}s, Término: {{ segment.end }}s</small>
+            </li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+  </div>
 
-  <h3>Resumos</h3>
-  {% if video.transcription and video.transcription.summaries %}
-    <ul class="list-group">
-      {% for summary in video.transcription.summaries %}
-        <li class="list-group-item">{{ summary.text }}</li>
-        <p>Tempo de Processamento: {{ summary.processing_time }} segundos</p>
-      {% endfor %}
-    </ul>
-  {% else %}
-    {% if video.transcription %}
-      <p>Resumo disponível. <a href="{{ url_for('summarization.summarize', transcription_id=video.transcription.id) }}">Clique aqui para Resumir</a></p>
-    {% else %}
-      <p>Nenhum resumo disponível.</p>
-    {% endif %}
-  {% endif %}
+  <div class="row" style="height: 50vh;">
+    <div class="col-md-6 mb-4" style="height: 100%;">
+      <h3>Transcrição</h3>
+      <div class="scrollable" style="max-height: 100%; overflow-y: auto;">
+        {% if video.transcription %}
+        <ul class="list-group">
+          <li class="list-group-item">{{ video.transcription.text }}</li>
+          <p><strong>Tempo de Processamento:</strong> {{ video.transcription.processing_time }} segundos</p>
+        </ul>
+          {% else %}
+          <p>Transcrição não disponível. <a href="{{ url_for('transcription.transcribe', video_id=video.id) }}">Clique aqui para transcrever</a></p>
+        {% endif %}
+      </div>
+    </div>
+    <div class="col-md-6 mb-4" style="height: 100%;">
+      <h3>Resumos</h3>
+      <div class="scrollable" style="max-height: 100%; overflow-y: auto;">
+        {% if video.transcription and video.transcription.summaries %}
+          <ul class="list-group">
+            {% for summary in video.transcription.summaries %}
+              <li class="list-group-item">{{ summary.text }}</li>
+              <p><strong>Tempo de Processamento:</strong> {{ summary.processing_time }} segundos</p>
+            {% endfor %}
+          </ul>
+        {% else %}
+          {% if video.transcription %}
+            <p>Resumo disponível. <a href="{{ url_for('summarization.summarize', transcription_id=video.transcription.id) }}">Clique aqui para Resumir</a></p>
+          {% else %}
+            <p>Nenhum resumo disponível.</p>
+          {% endif %}
+        {% endif %}
+      </div>
+    </div>
+  </div>
 {% endblock %}
