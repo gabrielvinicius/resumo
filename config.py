@@ -8,6 +8,8 @@ class Config:
     ALLOWED_EXTENSIONS = {'mp4', 'avi', 'mkv', 'mov'}  # Extensões permitidas para upload de vídeos
     MAX_CONTENT_LENGTH = 1024 * 1024 * 1024  # Limite de tamanho para upload de arquivos (1024MB)
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+    MIGRATE_DIR = 'migrations'
+    MIGRATE_DATABASE = True
 
 
 class ProductionConfig(Config):
