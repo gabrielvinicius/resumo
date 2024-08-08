@@ -85,7 +85,8 @@ def view(video_id):
         flash('Video not found or you do not have permission to view it', 'danger')
         return redirect(url_for('main.dashboard'))
 
-    return render_template('video/view_video.html', video=video)
+    # return render_template('video/view_video.html', video=video)
+    return render_template('video/video.html', video=video)
 
 
 @video_bp.route('/video/download/<int:video_id>')

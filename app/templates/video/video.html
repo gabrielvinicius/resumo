@@ -1,0 +1,64 @@
+{% extends 'layout.html' %}
+
+{% block title %}Visualizar Vídeo - {{ video.title }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-md-6 mb-4">
+      <div class="card h-100">
+        <div class="card-body">
+          <h2 class="card-title">{{ video.title }}</h2>
+          <div class="embed-responsive embed-responsive-16by9 mb-3">
+            {{ video.get_video_embed_html() | safe }}
+          </div>
+          <h3>Segmentos</h3>
+          <div class="list-group scrollable" style="max-height: 50vh; overflow-y: auto;">
+            {% for segment in video.transcription.segments %}
+              <a href="#" class="list-group-item list-group-item-action">
+                <p class="mb-1">{{ segment.text }}</p>
+                <small class="text-muted">Início: {{ segment.start }}s, Término: {{ segment.end }}s</small>
+              </a>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-6 mb-4">
+      <div class="card h-100">
+        <div class="card-body">
+          <h3>Transcrição</h3>
+          <div class="scrollable" style="max-height: 50vh; overflow-y: auto;">
+            {% if video.transcription %}
+              <p>{{ video.transcription.text }}</p>
+              <p><strong>Tempo de Processamento:</strong> {{ video.transcription.processing_time }} segundos</p>
+            {% else %}
+              <p class="text-muted">Transcrição não disponível. <a href="{{ url_for('transcription.transcribe', video_id=video.id) }}">Clique aqui para transcrever</a></p>
+            {% endif %}
+          </div>
+          <hr>
+          <h3>Resumos</h3>
+          <div class="list-group scrollable" style="max-height: 50vh; overflow-y: auto;">
+            {% if video.transcription and video.transcription.summaries %}
+              {% for summary in video.transcription.summaries %}
+                <div class="list-group-item">
+                  <p>{{ summary.text }}</p>
+                  <p><strong>Tempo de Processamento:</strong> {{ summary.processing_time }} segundos</p>
+                  <a href="{{ url_for('summarization.download_summary', summary_id=summary.id) }}" class="btn btn-primary">Baixar Resumo</a>
+                </div>
+              {% endfor %}
+            {% else %}
+              {% if video.transcription %}
+                <p class="text-muted">Resumo disponível. <a href="{{ url_for('summarization.summarize', transcription_id=video.transcription.id) }}">Clique aqui para Resumir</a></p>
+              {% else %}
+                <p class="text-muted">Nenhum resumo disponível.</p>
+              {% endif %}
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
