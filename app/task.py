@@ -2,7 +2,7 @@ import os
 from uuid import uuid1
 import moviepy.editor as mp
 import imageio
-from pytube import YouTube
+from pytubefix import YouTube
 
 from app import db
 from app.models import Video, Summary, Transcription, Segment
