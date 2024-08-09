@@ -63,7 +63,7 @@ async def upload():
             title = request.form.get('title')
             # Processar o link do YouTube e salvar os dados relevantes, se necessário
             # Exemplo:
-            task = process_youtube_link.delay(youtube_link, title)
+            task = process_youtube_link.delay(youtube_link, title, current_user.id)
         else:
             flash('Insira um link valido do Youtube', 'danger')
             return redirect(url_for('main.dashboard'))

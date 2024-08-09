@@ -75,7 +75,7 @@ def process_youtube_link(youtube_link, title, current_user_id):
     thumbnail_url = yt.thumbnail_url
     duration = yt.length
     new_video = Video(title=title, video_path=youtube_link, duration=duration,
-                      thumbnail_path=thumbnail_url, user_id= current_user_id, audio_path=file_path)
+                      thumbnail_path=thumbnail_url, user_id=current_user_id, audio_path=file_path)
     db.session.add(new_video)
     db.session.commit()
     transcription_task.delay(new_video.id)
@@ -107,7 +107,7 @@ def save_video_file(file_path, title, filename, current_user_id):
     audio.write_audiofile(audio_path, fps=16000, codec='pcm_s16le')
 
     new_video = Video(title=title, video_path=file_path, file_size=file_size, duration=duration,
-                      thumbnail_path=thumbnail_path, user_id= current_user_id, fps=fps, codec=codec,
+                      thumbnail_path=thumbnail_path, user_id=current_user_id, fps=fps, codec=codec,
                       audio_path=audio_path)
 
     # video_path = '/path/to/video/file.mp4'
