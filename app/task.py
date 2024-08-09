@@ -42,6 +42,7 @@ def transcription_task(video_id):
         #    db.session.add(word)
 
     db.session.commit()
+    summarization_task.delay(new_transcription.id)
     # flash('Transcription completed successfully', 'success')
 
 
@@ -77,6 +78,7 @@ def process_youtube_link(youtube_link, title, current_user_id):
                       thumbnail_path=thumbnail_url, user_id= current_user_id, audio_path=file_path)
     db.session.add(new_video)
     db.session.commit()
+    transcription_task.delay(new_video.id)
     # return new_video
 
 
@@ -111,4 +113,5 @@ def save_video_file(file_path, title, filename, current_user_id):
     # video_path = '/path/to/video/file.mp4'
     db.session.add(new_video)
     db.session.commit()
+    transcription_task.delay(new_video.id)
     # return new_video
