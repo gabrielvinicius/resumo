@@ -11,14 +11,15 @@ from pytube import YouTube
 
 from app import db
 from app.models import Video
+from app.task import process_youtube_link, save_video_file
 
 # from app.utils import allowed_file
 
 video_bp = Blueprint('video', __name__)
 
-UPLOAD_FOLDER = 'uploads'
-ALLOWED_EXTENSIONS = {'mp4', 'avi', 'mkv', 'mov'}
 
+ALLOWED_EXTENSIONS = {'mp4', 'avi', 'mkv', 'mov'}
+UPLOAD_FOLDER = 'uploads'
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
@@ -29,10 +30,10 @@ def check_video_permission(video):
     return video and video.user_id == current_user.id
 
 
-
 @video_bp.route('/video/upload', methods=['POST'])
 @login_required
-def upload():
+async def upload():
+
     title = request.form.get('title')
     upload_type = request.form.get('upload_type')
     if upload_type == 'file':
@@ -50,13 +51,10 @@ def upload():
         if 'file' not in request.files:
             flash('No file part', 'danger')
             return redirect(url_for('video.dashboard'))
-
-        new_video = save_video_file(file, title)
-        db.session.add(new_video)
-        db.session.commit()
-
-        flash('Video uploaded successfully', 'success')
-        return redirect(url_for('video.view', video_id=new_video.id))
+        filename = str(uuid1()) + '.mp4'
+        file_path = os.path.join(UPLOAD_FOLDER, filename)
+        file.save(file_path)
+        task = save_video_file.delay(file_path, title, filename, current_user.id)
 
     else:
         youtube_pattern = re.compile(r'^https?://(?:www\.)?youtube\.com/watch\?v=[\w-]+(?:&.*)?$')
@@ -65,20 +63,18 @@ def upload():
             title = request.form.get('title')
             # Processar o link do YouTube e salvar os dados relevantes, se necessário
             # Exemplo:
-            new_video = process_youtube_link(youtube_link, title)
-            db.session.add(new_video)
-            db.session.commit()
-
-            flash('Video uploaded successfully', 'success')
-            return redirect(url_for('video.view', video_id=new_video.id))
+            task = process_youtube_link.delay(youtube_link, title)
         else:
             flash('Insira um link valido do Youtube', 'danger')
             return redirect(url_for('main.dashboard'))
 
+    flash(f'Upload concluído, iniciando o processo de processamento, id: {task.id}', 'success')
+    return redirect(url_for('main.dashboard'))
+
 
 @video_bp.route('/video/view/<int:video_id>')
 @login_required
-def view(video_id):
+async def view(video_id):
     video = Video.query.get(video_id)
 
     if not check_video_permission(video):
@@ -91,7 +87,7 @@ def view(video_id):
 
 @video_bp.route('/video/download/<int:video_id>')
 @login_required
-def download(video_id):
+async def download(video_id):
     video = Video.query.get(video_id)
 
     if not check_video_permission(video):
@@ -113,7 +109,7 @@ def thumbnail(video_id):
 
 @video_bp.route('/video/delete/<int:video_id>', methods=['POST'])
 @login_required
-def delete(video_id):
+async def delete(video_id):
     video = Video.query.get(video_id)
     if not check_video_permission(video):
         flash('Video not found or you do not have permission to delete it', 'danger')
@@ -135,53 +131,3 @@ def delete(video_id):
 
     flash('Video deleted successfully', 'success')
     return redirect(url_for('main.dashboard'))
-
-
-def save_video_file(file, title):
-    # Lógica para salvar o arquivo de vídeo e obter seu caminho
-    # Exemplo:
-    filename = str(uuid1()) + '.mp4'
-    file_path = os.path.join(UPLOAD_FOLDER, filename)
-    file.save(file_path)
-
-    video_info = imageio.get_reader(file_path).get_meta_data()
-
-    file_size = os.path.getsize(file_path)
-
-    video = mp.VideoFileClip(file_path)
-    duration = video.duration
-
-    thumbnail_filename = f'{filename}_thumbnail.jpg'
-    thumbnail_path = os.path.join(UPLOAD_FOLDER, thumbnail_filename)
-    video.save_frame(thumbnail_path, t=(duration / 2))
-
-    fps = video_info.get('fps')
-    codec = video_info['codec']
-
-    audio = video.audio
-    audio_filename = str(uuid1()) + '.wav'
-    audio_path = os.path.join(UPLOAD_FOLDER, audio_filename)
-    audio.write_audiofile(audio_path, fps=16000, codec='pcm_s16le')
-
-    new_video = Video(title=title, video_path=file_path, file_size=file_size, duration=duration,
-                      thumbnail_path=thumbnail_path, user_id=current_user.id, fps=fps, codec=codec,
-                      audio_path=audio_path)
-
-    # video_path = '/path/to/video/file.mp4'
-    return new_video
-
-
-def process_youtube_link(youtube_link, title):
-    # Lógica para processar o link do YouTube e obter o caminho do vídeo
-    # Exemplo:
-    yt = YouTube(youtube_link)
-    filename = str(uuid1()) + '.mp3'
-    file_path = os.path.join(UPLOAD_FOLDER, filename)
-    audio_stream = yt.streams.filter(only_audio=True).first()
-    audio_stream.download(output_path=UPLOAD_FOLDER, filename=filename)
-    # video_path = 'https://www.youtube.com/watch?v=video_id'
-    thumbnail_url = yt.thumbnail_url
-    duration = yt.length
-    new_video = Video(title=title, video_path=youtube_link, duration=duration,
-                      thumbnail_path=thumbnail_url, user_id=current_user.id, audio_path=file_path)
-    return new_video

@@ -9,7 +9,7 @@ auth_bp = Blueprint('auth', __name__)
 
 
 @auth_bp.route('/login', methods=['GET', 'POST'])
-def login():
+async def login():
     if request.method == 'POST':
         username = request.form.get('username')
         password = request.form.get('password')
@@ -27,14 +27,14 @@ def login():
 
 @auth_bp.route('/logout')
 @login_required
-def logout():
+async def logout():
     logout_user()
     flash('You have been logged out', 'success')
     return redirect(url_for('auth.login'))
 
 
 @auth_bp.route('/register', methods=['GET', 'POST'])
-def register():
+async def register():
     if request.method == 'POST':
         username = request.form.get('username')
         password = request.form.get('password')

@@ -1,5 +1,6 @@
 # main.py
-from app import app
+import app
+
 
 if __name__ == '__main__':
     # Configuração do logging
@@ -7,7 +8,8 @@ if __name__ == '__main__':
 
     # try:
     # Inicialização do aplicativo Flask
-    app.run(host='0.0.0.0', debug=True)
+
+    app.flask_app.run(host='0.0.0.0', debug=True)
 # except Exception as e:
 # Em caso de exceção, registre a mensagem de erro no log
 # logging.exception('Error occurred: %s', str(e))

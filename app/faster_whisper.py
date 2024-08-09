@@ -1,10 +1,10 @@
 # app/faster_whisper.py
 import multiprocessing
-import os
+# import os
 import time
 
 import torch
-from moviepy.editor import VideoFileClip
+# from moviepy.editor import VideoFileClip
 from faster_whisper import WhisperModel
 
 
@@ -28,7 +28,7 @@ class SpeechTranscriber:
         # audio.write_audiofile(audio_path, fps=16000, codec='pcm_s16le')
 
         # Transcrição do áudio extraído
-        segments, info = self.model.transcribe(audio=audio_path, beam_size=5, vad_filter=True, word_timestamps = True)
+        segments, info = self.model.transcribe(audio=audio_path, beam_size=5, vad_filter=True, word_timestamps=False)
 
         # segments, info = self.model.transcribe(audio=video_path, beam_size=5, vad_filter=True)
         segments = list(segments)

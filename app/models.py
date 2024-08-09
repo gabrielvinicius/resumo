@@ -25,12 +25,13 @@ class User(db.Model, UserMixin):
     videos = db.relationship('Video', backref='user', lazy=True, cascade='all, delete-orphan')
 
 
-class Word(db.Model):
+''' class Word(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     text = db.Column(db.String(100), nullable=False)
     start = db.Column(db.Float, nullable=True)
     end = db.Column(db.Float, nullable=True)
     segment_id = db.Column(db.Integer, db.ForeignKey('segment.id'), nullable=False)  # Relação com Segment
+'''
 
 
 class Segment(db.Model):
@@ -39,7 +40,7 @@ class Segment(db.Model):
     end = db.Column(db.Float, nullable=False)
     text = db.Column(db.Text, nullable=False)
     transcription_id = db.Column(db.Integer, db.ForeignKey('transcription.id'), nullable=False)
-    words = db.relationship('Word', backref='segment', lazy=True, cascade='all, delete-orphan')
+    # words = db.relationship('Word', backref='segment', lazy=True, cascade='all, delete-orphan')
 
 
 class Transcription(db.Model):

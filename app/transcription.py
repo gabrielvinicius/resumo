@@ -2,12 +2,13 @@ import os
 import time
 
 import torch
+# import intel_extension_for_pytorch as ipex
 import whisper
-from moviepy.editor import VideoFileClip
+# from moviepy.editor import VideoFileClip
 
 
 class SpeechTranscriber:
-    def __init__(self, model_name='large-v3'):
+    def __init__(self, model_name='base'):
         print("Iniciando carregando o Modelo...")
         self.device = "cuda" if torch.cuda.is_available() else "cpu"
         print("O device foi "+self.device)
@@ -15,7 +16,7 @@ class SpeechTranscriber:
         self.model = whisper.load_model(name=model_name, device=self.device)
         print("Modelo carregado")
 
-    def transcribe(self, audio_path):
+    def transcribe(self, audio_path: str):
         print("Iniciando transcrição...")
         start_time = time.time()
         # video_dir = os.path.dirname(video_path)
@@ -26,7 +27,7 @@ class SpeechTranscriber:
         # audio = video.audio
         # audio.write_audiofile(audio_path, fps=16000, codec='pcm_s16le')
         # print("Transcrição do áudio...")
-        result = self.model.transcribe(audio=audio_path, verbose=False)
+        result = self.model.transcribe(audio=audio_path, verbose=True, beam_size=5, word_timestamps=True)
 
         LANGUAGES = {
             "en": "english",
