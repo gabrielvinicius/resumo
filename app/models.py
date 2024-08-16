@@ -4,8 +4,8 @@ from datetime import datetime
 from pytube import YouTube
 from flask_login import UserMixin
 from flask import url_for
-
 from app import db
+from app import login
 
 
 # from flask_security import UserMixin

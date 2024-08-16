@@ -12,8 +12,6 @@ from app.faster_whisper import SpeechTranscriber
 from app.summarization import TFIDFSummarizer
 from celery import shared_task
 
-
-
 UPLOAD_FOLDER = 'uploads'
 
 

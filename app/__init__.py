@@ -38,13 +38,6 @@ login = LoginManager()
 login.init_app(flask_app)
 login.login_view = 'auth.login'
 
-
-@login.user_loader
-def load_user(user_id):
-    from app.models import User
-    return User.query.get(int(user_id))
-
-
 from app.routes import auth, video, main_bp, summarization, transcription
 
 # Importa os módulos de rotas
