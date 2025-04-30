@@ -25,8 +25,10 @@ flask_app = Flask(__name__)
 flask_app.config.from_object(Config)
 flask_app.config.from_mapping(
     CELERY=dict(
-        broker_url="redis://localhost",
-        result_backend="redis://localhost",
+        #broker_url="redis://localhost",
+        #result_backend="redis://localhost",
+        broker_url="redis://45.33.198.3",
+        result_backend="redis://45.33.198.3",
         task_ignore_result=True,
     ),
 )

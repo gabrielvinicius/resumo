@@ -1,7 +1,7 @@
 # app/models.py
 import re
 from datetime import datetime
-from pytube import YouTube
+from pytubefix import YouTube
 from flask_login import UserMixin
 from flask import url_for
 from app import db
@@ -55,6 +55,8 @@ class Transcription(db.Model):
     segments = db.relationship('Segment', backref='transcription', lazy=True, cascade='all, delete-orphan')
 
 
+YOUTUBE_PATTERN = re.compile(r'^https?://(?:www\.)?(?:youtube\.com/watch\?v=|youtu\.be/)([\w-]+)')
+
 class Video(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(100), nullable=False)
@@ -65,31 +67,35 @@ class Video(db.Model):
     thumbnail_path = db.Column(db.String(255), nullable=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     codec = db.Column(db.String(20), nullable=True)
-    date_added = db.Column(db.DateTime, default=datetime.now())  # Data em que o vídeo foi adicionado
+    date_added = db.Column(db.DateTime, default=datetime.now())
     fps = db.Column(db.Float, nullable=True)
     transcription = db.relationship('Transcription', backref='video', uselist=False, cascade='all, delete-orphan')
 
     def get_video_embed_html(self):
-        youtube_pattern = re.compile(r'^https?://(?:www\.)?youtube\.com/watch\?v=[\w-]+(?:&.*)?$')
-        if bool(youtube_pattern.match(self.video_path)):
-            yt = YouTube(self.video_path)
-            # return yt.embed_html
-            return '<iframe width="640" height="360" src="' + yt.embed_url + ('" frameborder="0" allow="autoplay; '
-                                                                              'encrypted-media" '
-                                                                              'allowfullscreen></iframe>')
-        else:
-            return (f'<video controls width="426" height="240"><source src="'
-                    f'{url_for("video.download", video_id=self.id)}" type="video/mp4">'
-                    f'Seu navegador não suporta a tag de vídeo.</video>')
+        if self.video_path and YOUTUBE_PATTERN.match(self.video_path):
+            try:
+                yt = YouTube(self.video_path)
+                return (
+                    f'<iframe width="640" height="360" src="{yt.embed_url}" '
+                    f'frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>'
+                )
+            except Exception as e:
+                # Logar erro, retornar alternativa segura
+                print(f"[ERROR] YouTube embed error: {e}")
+        return (
+            f'<video controls width="426" height="240">'
+            f'<source src="{url_for("video.download", video_id=self.id)}" type="video/mp4">'
+            f'Seu navegador não suporta a tag de vídeo.</video>'
+        )
 
     def get_thumbnail_html(self):
-        youtube_pattern = re.compile(r'^https?://(?:www\.)?youtube\.com/watch\?v=[\w-]+(?:&.*)?$')
-        if bool(youtube_pattern.match(self.video_path)):
-            yt = YouTube(self.video_path)
-            return '<img src="' + yt.thumbnail_url + '" alt="Thumbnail" class="card-img-top">'
-        else:
-            return '<img src="' + url_for('video.thumbnail',
-                                          video_id=self.id) + '" alt="Thumbnail" class="card-img-top">'
+        if self.video_path and YOUTUBE_PATTERN.match(self.video_path):
+            try:
+                yt = YouTube(self.video_path)
+                return f'<img src="{yt.thumbnail_url}" alt="Thumbnail" class="card-img-top">'
+            except Exception as e:
+                print(f"[ERROR] YouTube thumbnail error: {e}")
+        return f'<img src="{url_for("video.thumbnail", video_id=self.id)}" alt="Thumbnail" class="card-img-top">'
 
 
 class Summary(db.Model):

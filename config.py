@@ -11,12 +11,15 @@ class Config:
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     MIGRATE_DIR = 'migrations'
     MIGRATE_DATABASE = True
-    CELERY_BROKER_URL = "redis://localhost:6379/0"
-    CELERY_RESULT_BACKEND = "redis://localhost:6379/0"
+    #CELERY_BROKER_URL = "redis://localhost:6379/0"
+    #CELERY_RESULT_BACKEND = "redis://localhost:6379/0"
+    CELERY_BROKER_URL = "redis://45.33.198.3:6379/0"
+    CELERY_RESULT_BACKEND = "redis://45.33.198.3:6379/0"
     CELERY_SETTINGS = {
         'CELERY_TIMEZONE': 'America/Bahia',
         'CELERY_ENABLE_UTC': True,
-        'CELERY_RESULT_BACKEND': "redis://localhost:6379/0",
+        #'CELERY_RESULT_BACKEND': "redis://localhost:6379/0",
+        'CELERY_RESULT_BACKEND': "redis://45.33.198.3:6379/0",
         'CELERY_SEND_TASK_SENT_EVENT': True,
         'CELERY_TASK_SERIALIZER': 'pickle',
         'CELERY_RESULT_SERIALIZER': 'pickle',

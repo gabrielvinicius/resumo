@@ -7,7 +7,7 @@ from app import db
 from app.task import transcription_task, summarization_task
 from app.models import Video, Transcription
 
-from app.transcription import SpeechTranscriber
+# from app.transcription import SpeechTranscriber
 
 # from app.faster_whisper import SpeechTranscriber
 

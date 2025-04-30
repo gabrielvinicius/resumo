@@ -1,14 +1,15 @@
 import os
+from pathlib import Path
 from uuid import uuid1
-import moviepy.editor as mp
+from moviepy import VideoFileClip
 import imageio
 from pytubefix import YouTube
 
 from app import db
 from app.models import Video, Summary, Transcription, Segment
 # from app.transcription import SpeechTranscriber
-from app.faster_whisper import SpeechTranscriber
-
+from app.speech_to_text import SpeechTranscriber
+# from app.faster_whisper import SpeechTranscriber
 from app.summarization import TFIDFSummarizer
 from celery import shared_task
 
@@ -22,7 +23,7 @@ def transcription_task(video_id):
     print(video.audio_path)
     # video = Video.query.get(video_id)
     transcriber = SpeechTranscriber()
-    # print(video.audio_path)
+    # print(video.audio_path)#
     transcription_text, processing_time, language, segments = transcriber.transcribe(audio_path=video.audio_path)
 
     # Cria uma nova transcrição associada ao vídeo
@@ -89,7 +90,7 @@ def save_video_file(file_path, title, filename, current_user_id):
 
     file_size = os.path.getsize(file_path)
 
-    video = mp.VideoFileClip(file_path)
+    video = VideoFileClip(file_path)
     duration = video.duration
 
     thumbnail_filename = f'{filename}_thumbnail.jpg'

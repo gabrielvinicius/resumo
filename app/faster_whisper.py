@@ -10,9 +10,18 @@ from faster_whisper import WhisperModel
 
 class SpeechTranscriber:
     def __init__(self, model_size="base"):
-        self.device = "cuda" if torch.cuda.is_available() else "cpu"
-        self.torch_dtype = 'float16' if torch.cuda.is_available() else 'float32'
-        self.model = WhisperModel(model_size, num_workers=multiprocessing.cpu_count() * 2 + 1)
+        if torch.cuda.is_available():
+            self.device = "cuda"
+            self.torch_dtype = "float16"
+        elif torch.xpu.is_available():
+            self.device = "xpu"
+            self.torch_dtype = "float16"
+        else:
+            self.device = "cpu"
+            self.torch_dtype = "float32"
+
+        self.model = WhisperModel(model_size, device=self.device, compute_type=self.torch_dtype,
+                                  num_workers=multiprocessing.cpu_count() * 2 + 1)
 
     def transcribe(self, audio_path):
         start_time = time.time()
