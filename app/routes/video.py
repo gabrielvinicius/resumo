@@ -1,17 +1,19 @@
 # app/routes/video.py
 import os
-import re
+#import re
+from pathlib import Path
 from uuid import uuid1
 
 #import imageio
 #import moviepy.editor as mp
-from flask import Blueprint, render_template, redirect, url_for, flash, request, send_file
+from flask import Blueprint, current_app,render_template, redirect, url_for, flash, request, send_file, jsonify
 from flask_login import login_required, current_user
-from pytube import YouTube
+#from pytube import YouTube
+from werkzeug.utils import secure_filename
 
 from app import db
 from app.models import Video
-from app.task import process_youtube_link, save_video_file
+from app.tasks import process_youtube_link, save_video_file
 
 # from app.utils import allowed_file
 
@@ -32,45 +34,36 @@ def check_video_permission(video):
 
 @video_bp.route('/video/upload', methods=['POST'])
 @login_required
-async def upload():
-
+def upload():
     title = request.form.get('title')
     upload_type = request.form.get('upload_type')
-    if upload_type == 'file':
-        file = request.files['file']
-        # Salvar o arquivo de vídeo e obter seu caminho
-        # Exemplo:
-        if not allowed_file(file.filename):
-            flash('Invalid file format. Please upload a valid video file.', 'danger')
-            return redirect(url_for('video.dashboard'))
 
-        if file.filename == '':
-            flash('No selected file', 'danger')
-            return redirect(url_for('video.dashboard'))
+    try:
+        if upload_type == 'file':
+            file = request.files['file']
+            filename = secure_filename(str(uuid1()) + Path(file.filename).suffix)
+            file_path = os.path.join(current_app.config['UPLOAD_FOLDER'], filename)
+            file.save(file_path)
 
-        if 'file' not in request.files:
-            flash('No file part', 'danger')
-            return redirect(url_for('video.dashboard'))
-        filename = str(uuid1()) + '.mp4'
-        file_path = os.path.join(UPLOAD_FOLDER, filename)
-        file.save(file_path)
-        task = save_video_file.delay(file_path, title, filename, current_user.id)
-
-    else:
-        youtube_pattern = re.compile(r'^https?://(?:www\.)?youtube\.com/watch\?v=[\w-]+(?:&.*)?$')
-        youtube_link = request.form.get('youtube_link')
-        if bool(youtube_pattern.match(youtube_link)):
-            title = request.form.get('title')
-            # Processar o link do YouTube e salvar os dados relevantes, se necessário
-            # Exemplo:
-            task = process_youtube_link.delay(youtube_link, title, current_user.id)
+            task = save_video_file.delay(
+                file_path=file_path,
+                title=title,
+                filename=filename,
+                current_user_id=current_user.id
+            )
         else:
-            flash('Insira um link valido do Youtube', 'danger')
-            return redirect(url_for('main.dashboard'))
+            youtube_link = request.form.get('youtube_link')
+            task = process_youtube_link.delay(
+                youtube_link=youtube_link,
+                title=title,
+                current_user_id=current_user.id
+            )
 
-    flash(f'Upload concluído, iniciando o processo de processamento, id: {task.id}', 'success')
-    return redirect(url_for('main.dashboard'))
+        return jsonify({'task_id': task.id}), 202
 
+    except Exception as e:
+        current_app.logger.error(f"Erro no upload: {str(e)}")
+        return jsonify({'error': str(e)}), 500
 
 @video_bp.route('/video/view/<int:video_id>')
 @login_required
@@ -131,3 +124,9 @@ async def delete(video_id):
 
     flash('Video deleted successfully', 'success')
     return redirect(url_for('main.dashboard'))
+
+@video_bp.route('/videos/list')
+@login_required
+def list_videos():
+    videos = Video.query.filter_by(user_id=current_user.id).order_by(Video.date_added.desc()).all()
+    return render_template('partials/video_list.html', videos=videos)

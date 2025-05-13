@@ -1,3 +1,4 @@
+#app/utils/video_handler.py
 import os
 import re
 from uuid import uuid1
@@ -86,13 +87,17 @@ class VideoHandler:
             return None
 
     @staticmethod
-    def extract_youtube_video_id(youtube_link):
-        """
-        Extrai o ID do vídeo do YouTube a partir do link fornecido.
-        """
-        youtube_pattern = re.compile(r'^https?://(?:www\.)?youtube\.com/watch\?v=([\w-]+)(?:&.*)?$')
-        match = youtube_pattern.match(youtube_link)
-        if match:
-            return match.group(1)
-        else:
-            return None
+    def extract_youtube_video_id(url):
+        """Versão melhorada para extrair ID do YouTube"""
+        patterns = [
+            r'^https?://(?:www\.)?youtube\.com/watch\?v=([\w-]+)',
+            r'^https?://youtu\.be/([\w-]+)',
+            r'^https?://(?:www\.)?youtube\.com/embed/([\w-]+)',
+            r'^https?://(?:www\.)?youtube\.com/v/([\w-]+)'
+        ]
+
+        for pattern in patterns:
+            match = re.match(pattern, url)
+            if match and match.group(1):
+                return match.group(1)
+        return None

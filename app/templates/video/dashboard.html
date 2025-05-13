@@ -1,94 +1,205 @@
-<!-- templates/video/dashboard.html -->
 {% extends 'layout.html' %}
 
 {% block title %}Dashboard{% endblock %}
 
 {% block content %}
-  <h2 class="mb-4">Bem-vindo(a), {{ current_user.username }}!</h2>
-  <div class="card">
-    <div class="card-header">
-      <h3 class="card-title">Enviar um Novo Vídeo</h3>
-    </div>
-    <div class="card-body">
-      <form action="{{ url_for('video.upload') }}" enctype="multipart/form-data" method="post">
-        <div class="row mb-3">
-          <div class="col-md-6">
-            <label for="title" class="form-label">Título:</label>
-            <input type="text" id="title" name="title" required class="form-control">
-          </div>
-          <div class="col-md-6">
-            <label for="upload_type" class="form-label">Tipo de Upload:</label>
-            <select id="upload_type" name="upload_type" class="form-select">
-              <option value="file">Arquivo de Vídeo</option>
-              <option value="youtube">Link do YouTube</option>
-            </select>
-          </div>
-        </div>
-        <div class="row mb-3 upload-file">
-          <div class="col-md-12">
-            <label for="file" class="form-label">Escolha um Arquivo de Vídeo:</label>
-            <input type="file" id="file" name="file" class="form-control" accept=".mp4, .avi, .mkv, .mov">
-          </div>
-        </div>
-        <div class="row mb-3 upload-youtube" style="display: none;">
-          <div class="col-md-12">
-            <label for="youtube_link" class="form-label">Insira um link do YouTube:</label>
-            <input type="text" id="youtube_link" name="youtube_link" class="form-control">
-          </div>
-        </div>
-        <div class="row">
-          <div class="col-md-6">
-            <button type="submit" class="btn btn-primary">Enviar</button>
-          </div>
-        </div>
-      </form>
-    </div>
-  </div>
+  <div class="container">
+    <h2 class="mb-4">Bem-vindo(a), {{ current_user.username }}!</h2>
+    
+    <!-- Container para alertas -->
+    <div id="alerts-container" class="position-fixed top-0 end-0 p-3" style="z-index: 11"></div>
 
-  <div class="row mt-4">
-    {% for video in videos %}
-      <div class="col-md-4 mb-4">
-        <div class="card">
-          {{ video.get_thumbnail_html() | safe }}
-          <!--<img src="{{ url_for('video.thumbnail', video_id=video.id) }}" alt="Thumbnail" class="card-img-top">-->
-          <div class="card-body">
-            <h5 class="card-title">{{ video.title }}</h5>
-            <p class="card-text">Tamanho do Arquivo: {{ video.file_size }} bytes</p>
-            <p class="card-text">FPS: {{ video.fps }}</p>
-            <p class="card-text">Codec: {{ video.codec }}</p>
-            <p class="card-text">Duração: {{ video.duration }} seg</p>
-            <p class="card-text">Data de Adição: {{ video.date_added.strftime('%Y-%m-%d %H:%M:%S') }}</p>
-            <a href="{{ url_for('transcription.transcribe', video_id=video.id) }}" class="btn btn-primary">Iniciar Processamento</a>
-            <a href="{{ url_for('video.view', video_id=video.id) }}" class="btn btn btn-secondary">Ver Detalhes</a>
-          <form id="delete-form-{{ video.id }}" action="{{ url_for('video.delete', video_id=video.id) }}" method="post" style="display: inline;">
-          <button type="button" class="btn btn-danger" onclick="confirmDelete({{ video.id }})">Excluir</button>
-        </form>
-          </div>
-        </div>
+    <!-- Card de Upload -->
+    <div class="card mb-4">
+      <div class="card-header bg-primary text-white">
+        <h3 class="card-title mb-0">Enviar um Novo Vídeo</h3>
       </div>
-    {% endfor %}
+      <div class="card-body">
+        <form action="{{ url_for('video.upload') }}" enctype="multipart/form-data" method="post" id="upload-form">
+          <div class="row mb-3">
+            <div class="col-md-6">
+              <label for="title" class="form-label">Título:</label>
+              <input type="text" id="title" name="title" required class="form-control" placeholder="Digite o título do vídeo">
+            </div>
+            <div class="col-md-6">
+              <label for="upload_type" class="form-label">Tipo de Upload:</label>
+              <select id="upload_type" name="upload_type" class="form-select">
+                <option value="file">Arquivo de Vídeo</option>
+                <option value="youtube">Link do YouTube</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Upload de Arquivo -->
+          <div class="row mb-3 upload-file">
+            <div class="col-md-12">
+              <label for="file" class="form-label">Escolha um Arquivo de Vídeo:</label>
+              <input type="file" id="file" name="file" class="form-control" accept=".mp4, .avi, .mkv, .mov">
+              <small class="form-text text-muted">Formatos suportados: MP4, AVI, MKV, MOV</small>
+            </div>
+          </div>
+
+          <!-- Upload do YouTube -->
+          <div class="row mb-3 upload-youtube" style="display: none;">
+            <div class="col-md-12">
+              <label for="youtube_link" class="form-label">Insira um link do YouTube:</label>
+              <input type="url" id="youtube_link" name="youtube_link" class="form-control" placeholder="https://www.youtube.com/watch?v=...">
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-12">
+              <button type="submit" class="btn btn-primary" id="submit-btn">
+                <i class="fas fa-upload me-2"></i>Enviar
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Lista de Vídeos -->
+    <h3 class="mb-3">Seus Vídeos</h3>
+    <div id="videos-container" class="row">
+      {% include 'partials/video_list.html' %}
+    </div>
   </div>
 {% endblock %}
 
 {% block scripts %}
-  <script><!--src="{{ url_for('static', filename='upload.js') }}"> -->
-</script>
   <script>
-    $(document).ready(function() {
-      $('#upload_type').change(function() {
-        if ($(this).val() == 'youtube') {
-          $('.upload-file').hide();
-          $('.upload-youtube').show();
-        } else {
-          $('.upload-file').show();
-          $('.upload-youtube').hide();
-        }
-      });
-    });
-    function confirmDelete(videoId) {
-    if (confirm("Tem certeza de que deseja excluir este vídeo?")) {
-      document.getElementById('delete-form-' + videoId).submit();
+// Variável para armazenar o intervalo de polling
+let pollInterval = null;
+
+// Função para verificar o status do processamento
+function checkUploadStatus(taskId) {
+    fetch(`/task/status/${taskId}`)
+        .then(response => {
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+            return response.json();
+        })
+        .then(data => {
+            console.log('Status da tarefa:', data);
+
+            if (data.status === 'SUCCESS') {
+                showAlert('Vídeo processado com sucesso!', 'success');
+                loadVideos();
+                resetUploadForm();
+                clearInterval(pollInterval);
+            } else if (data.status === 'FAILURE') {
+                showAlert(`Erro no processamento: ${data.error || 'Erro desconhecido'}`, 'danger');
+                resetUploadForm();
+                clearInterval(pollInterval);
+            }
+            // Se PENDING, continua aguardando (não precisa fazer nada)
+        })
+        .catch(error => {
+            console.error('Erro ao verificar status:', error);
+            showAlert('Erro ao verificar status do processamento', 'danger');
+            resetUploadForm();
+            clearInterval(pollInterval);
+        });
+}
+
+// Função para carregar os vídeos via AJAX
+function loadVideos() {
+    fetch('/videos/list')
+        .then(response => {
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+            return response.text();
+        })
+        .then(html => {
+            document.getElementById('videos-container').innerHTML = html;
+        })
+        .catch(error => {
+            console.error('Erro ao carregar vídeos:', error);
+            showAlert('Erro ao atualizar lista de vídeos', 'danger');
+        });
+}
+
+// Função para mostrar alertas
+function showAlert(message, type) {
+    const alertDiv = document.createElement('div');
+    alertDiv.className = `alert alert-${type} alert-dismissible fade show`;
+    alertDiv.role = 'alert';
+    alertDiv.innerHTML = `
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    `;
+
+    const container = document.getElementById('alerts-container');
+    container.prepend(alertDiv);
+
+    // Remove o alerta após 5 segundos
+    setTimeout(() => {
+        alertDiv.classList.remove('show');
+        setTimeout(() => alertDiv.remove(), 150);
+    }, 5000);
+}
+
+// Função para resetar o formulário
+function resetUploadForm() {
+    const form = document.getElementById('upload-form');
+    const submitBtn = form.querySelector('button[type="submit"]');
+
+    submitBtn.disabled = false;
+    submitBtn.innerHTML = '<i class="fas fa-upload me-2"></i>Enviar';
+    form.reset(); // Limpa todos os campos do formulário
+}
+
+// Alternar entre upload de arquivo e YouTube
+document.getElementById('upload_type').addEventListener('change', function() {
+    const isYoutube = this.value === 'youtube';
+    document.querySelector('.upload-file').style.display = isYoutube ? 'none' : 'block';
+    document.querySelector('.upload-youtube').style.display = isYoutube ? 'block' : 'none';
+
+    // Tornar campos obrigatórios conforme o tipo selecionado
+    document.getElementById('file').required = !isYoutube;
+    document.getElementById('youtube_link').required = isYoutube;
+});
+
+// Captura o evento de submissão do formulário
+document.getElementById('upload-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    const formData = new FormData(this);
+    const submitBtn = this.querySelector('button[type="submit"]');
+
+    // Mostra estado de carregamento
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Processando...';
+
+    // Limpa qualquer intervalo anterior
+    if (pollInterval) {
+        clearInterval(pollInterval);
     }
-  }
+
+    fetch(this.action, {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`Erro no servidor: ${response.statusText}`);
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (data.task_id) {
+            showAlert('Upload recebido. Processando vídeo...', 'info');
+            // Inicia o polling a cada 3 segundos
+            pollInterval = setInterval(() => {
+                checkUploadStatus(data.task_id);
+            }, 3000);
+        } else {
+            throw new Error('ID da tarefa não recebido');
+        }
+    })
+    .catch(error => {
+        console.error('Erro no upload:', error);
+        showAlert(`Erro ao enviar o vídeo: ${error.message}`, 'danger');
+        resetUploadForm();
+    });
+});
   </script>
 {% endblock %}

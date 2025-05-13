@@ -16,6 +16,7 @@ class Library(db.Model):
     name = db.Column(db.String(50), unique=True, nullable=False)
     description = db.Column(db.Text, nullable=True)
     version = db.Column(db.String(20), nullable=True)
+    created_at = db.Column(db.DateTime, default=datetime.now())
 
 
 class User(db.Model, UserMixin):
@@ -23,7 +24,7 @@ class User(db.Model, UserMixin):
     username = db.Column(db.String(50), unique=True, nullable=False)
     password = db.Column(db.String(250), nullable=False)
     videos = db.relationship('Video', backref='user', lazy=True, cascade='all, delete-orphan')
-
+    created_at = db.Column(db.DateTime, default=datetime.now())
 
 ''' class Word(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -67,6 +68,7 @@ class Video(db.Model):
     thumbnail_path = db.Column(db.String(255), nullable=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     codec = db.Column(db.String(20), nullable=True)
+    created_at = db.Column(db.DateTime, default=datetime.now())
     date_added = db.Column(db.DateTime, default=datetime.now())
     fps = db.Column(db.Float, nullable=True)
     transcription = db.relationship('Transcription', backref='video', uselist=False, cascade='all, delete-orphan')
@@ -89,14 +91,15 @@ class Video(db.Model):
         )
 
     def get_thumbnail_html(self):
-        if self.video_path and YOUTUBE_PATTERN.match(self.video_path):
-            try:
-                yt = YouTube(self.video_path)
-                return f'<img src="{yt.thumbnail_url}" alt="Thumbnail" class="card-img-top">'
-            except Exception as e:
-                print(f"[ERROR] YouTube thumbnail error: {e}")
-        return f'<img src="{url_for("video.thumbnail", video_id=self.id)}" alt="Thumbnail" class="card-img-top">'
-
+        if self.video_path and 'youtube.com' in self.video_path:
+            # Para vídeos do YouTube
+            return f'<img src="{self.thumbnail_path}" alt="Thumbnail" class="card-img-top">'
+        elif self.thumbnail_path:
+            # Para vídeos locais
+            return f'<img src="{url_for("video.thumbnail", video_id=self.id)}" alt="Thumbnail" class="card-img-top">'
+        else:
+            # Thumbnail padrão
+            return '<div class="card-img-top bg-secondary" style="height: 180px; display: flex; align-items: center; justify-content: center; color: white;">Sem Thumbnail</div>'
 
 class Summary(db.Model):
     id = db.Column(db.Integer, primary_key=True)

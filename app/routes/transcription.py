@@ -4,7 +4,7 @@ from io import BytesIO
 from flask import Blueprint, redirect, url_for, flash, send_file
 from flask_login import login_required, current_user
 from app import db
-from app.task import transcription_task, summarization_task
+from app.tasks import transcription_task, summarization_task
 from app.models import Video, Transcription
 
 # from app.transcription import SpeechTranscriber
@@ -35,7 +35,7 @@ async def transcribe(video_id):
 
 @transcription_bp.route('/transcribe/download/<int:transcription_id>')
 @login_required
-def download_transcribe(transcription_id):
+def download(transcription_id):
     transcription = Transcription.query.get(transcription_id)
     if not transcription:
         flash('Transcription not found', 'danger')

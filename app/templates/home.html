@@ -1,0 +1,71 @@
+{% extends 'layout.html' %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+  <div class="container">
+    <h2 class="mb-4">Bem-vindo(a), {{ current_user.username }}!</h2>
+    
+    <!-- Container para alertas -->
+    <div id="alerts-container" class="position-fixed top-0 end-0 p-3" style="z-index: 11"></div>
+
+    <!-- Card de Upload -->
+    <div class="card mb-4">
+      <div class="card-header bg-primary text-white">
+        <h3 class="card-title mb-0">Enviar um Novo Vídeo</h3>
+      </div>
+      <div class="card-body">
+        <form action="{{ url_for('video.upload') }}" enctype="multipart/form-data" method="post" id="upload-form">
+          <div class="row mb-3">
+            <div class="col-md-6">
+              <label for="title" class="form-label">Título:</label>
+              <input type="text" id="title" name="title" required class="form-control" placeholder="Digite o título do vídeo">
+            </div>
+            <div class="col-md-6">
+              <label for="upload_type" class="form-label">Tipo de Upload:</label>
+              <select id="upload_type" name="upload_type" class="form-select">
+                <option value="file">Arquivo de Vídeo</option>
+                <option value="youtube">Link do YouTube</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Upload de Arquivo -->
+          <div class="row mb-3 upload-file">
+            <div class="col-md-12">
+              <label for="file" class="form-label">Escolha um Arquivo de Vídeo:</label>
+              <input type="file" id="file" name="file" class="form-control" accept=".mp4, .avi, .mkv, .mov">
+              <small class="form-text text-muted">Formatos suportados: MP4, AVI, MKV, MOV</small>
+            </div>
+          </div>
+
+          <!-- Upload do YouTube -->
+          <div class="row mb-3 upload-youtube" style="display: none;">
+            <div class="col-md-12">
+              <label for="youtube_link" class="form-label">Insira um link do YouTube:</label>
+              <input type="url" id="youtube_link" name="youtube_link" class="form-control" placeholder="https://www.youtube.com/watch?v=..." pattern="^(https?\:\/\/)?(www\.)?(youtube\.com|youtu\.?be)\/.+$">
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-12">
+              <button type="submit" class="btn btn-primary" id="submit-btn">
+                <i class="fas fa-upload me-2"></i>Enviar
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Lista de Vídeos -->
+    <h3 class="mb-3">Seus Vídeos</h3>
+    <div id="videos-container" class="row">
+      {% include 'partials/video_list.html' %}
+    </div>
+  </div>
+{% endblock %}
+
+{% block scripts %}
+  <script type="module" src="{{ url_for('static', filename='js/home.js') }}"></script>
+{% endblock %}

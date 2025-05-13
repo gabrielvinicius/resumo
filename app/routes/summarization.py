@@ -4,7 +4,7 @@ from io import BytesIO
 
 from flask import Blueprint, redirect, url_for, flash, send_file
 from flask_login import login_required, current_user
-from app.task import summarization_task
+from app.tasks import summarization_task
 from app import db
 from app.models import Transcription, Summary
 from app.summarization import TFIDFSummarizer

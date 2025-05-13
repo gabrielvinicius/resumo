@@ -1,0 +1,59 @@
+{% for video in videos %}
+<div class="col-md-4 mb-4">
+    <div class="card h-100">
+        {% if video.get_thumbnail_html() %}
+            {{ video.get_thumbnail_html() | safe }}
+        {% else %}
+            <div class="card-img-top bg-secondary d-flex align-items-center justify-content-center" style="height: 180px;">
+                <span class="text-white">Thumbnail não disponível</span>
+            </div>
+        {% endif %}
+
+        <div class="card-body d-flex flex-column">
+            <h5 class="card-title">{{ video.title }}</h5>
+
+            <div class="video-metadata mb-3">
+                {% if video.duration %}
+                    <p><i class="fas fa-clock me-2"></i>Duração: {{ video.duration|format_time }}</p>
+                {% endif %}
+
+                {% if video.file_size %}
+                    <p><i class="fas fa-file me-2"></i>Tamanho: {{ video.file_size|filesizeformat }}</p>
+                {% endif %}
+
+                {% if video.date_added %}
+                    <p><i class="fas fa-calendar me-2"></i>Adicionado: {{ video.date_added.strftime('%d/%m/%Y') }}</p>
+                {% endif %}
+            </div>
+
+            <div class="mt-auto">
+                <div class="d-grid gap-2">
+                    <a href="{{ url_for('video.view', video_id=video.id) }}" class="btn btn-primary">
+                        <i class="fas fa-eye me-2"></i>Ver Detalhes
+                    </a>
+
+                    {% if not video.transcription %}
+                        <a href="{{ url_for('transcription.transcribe', video_id=video.id) }}"
+                           class="btn btn-outline-primary">
+                            <i class="fas fa-keyboard me-2"></i>Transcrever
+                        </a>
+                    {% endif %}
+
+                    <form action="{{ url_for('video.delete', video_id=video.id) }}" method="post" class="d-grid">
+                        <button type="submit" class="btn btn-outline-danger"
+                                onclick="return confirm('Tem certeza que deseja excluir este vídeo?')">
+                            <i class="fas fa-trash me-2"></i>Excluir
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% else %}
+<div class="col-12">
+    <div class="alert alert-info">
+        Nenhum vídeo encontrado. Envie seu primeiro vídeo usando o formulário acima.
+    </div>
+</div>
+{% endfor %}

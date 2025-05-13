@@ -1,0 +1,40 @@
+/* Efeitos visuais para o dashboard */
+.highlight {
+    animation: highlight 2s ease-in-out;
+    box-shadow: 0 0 15px rgba(25, 135, 84, 0.5);
+}
+
+@keyframes highlight {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.02); }
+    100% { transform: scale(1); }
+}
+
+/* Progress bar animada */
+.progress-bar {
+    transition: width 0.3s ease;
+}
+
+/* Card de vídeo */
+.video-card {
+    transition: all 0.3s ease;
+    margin-bottom: 20px;
+}
+
+.video-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+}
+
+/* Alertas */
+.alert {
+    transition: all 0.3s ease;
+    max-width: 400px;
+}
+
+/* Formulário responsivo */
+@media (max-width: 768px) {
+    .upload-file, .upload-youtube {
+        margin-bottom: 15px;
+    }
+}
